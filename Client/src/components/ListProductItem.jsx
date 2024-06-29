@@ -1,23 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/esm/Button';
 import Container from 'react-bootstrap/esm/Container';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteProductMutation } from '../slices/productApiSlice';
+import { useDeleteProductMutation } from '../store/slices/productApiSlice';
+import ProductNotExist from './ProductNotExist';
 
 function ListProductItem({ currentItems }) {
     const [id, setId] = useState();
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
-    const [productInPage, setProductInPage] = useState([]);
-    const [deleteProduct, result] = useDeleteProductMutation();
-    // const [remove, setRemove] = useState(false)
-    console.log('current item: ', currentItems);
-    // console.log('product in page: ', productInPage);
-    useEffect(() => {
-        setProductInPage(currentItems);
-    }, [currentItems]);
+    const [deleteProduct, { isError }] = useDeleteProductMutation();
 
     const handleUpdate = (id) => {
         navigate(`/product/update/${id}`);
@@ -32,21 +26,15 @@ function ListProductItem({ currentItems }) {
     };
 
     const handleDelete = async () => {
-        // axios.delete(`/product/delete/${id}`).then(() => {
-        //     console.log('delete success');
-        //     const currentProducts = productInPage.filter(
-        //         (product) => product._id !== id
-        //     );
-        //     setProductInPage(currentProducts);
-        // });
-        await deleteProduct(id).unwrap();
-        const currentProducts = productInPage.filter(
-            (product) => product._id !== id
-        );
-        setProductInPage(currentProducts);
-        // setRemove(false)
-        setShow(false);
+        try {
+            await deleteProduct(id).unwrap();
+            setShow(false);
+        } catch (error) {}
     };
+
+    if (isError) {
+        return <ProductNotExist />;
+    }
 
     return (
         <>
@@ -61,7 +49,7 @@ function ListProductItem({ currentItems }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {productInPage.map((item, index) => (
+                        {currentItems.map((item, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{item.productName}</td>

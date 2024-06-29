@@ -4,7 +4,6 @@ import Login from './page/Login';
 import ForgotPassword from './page/ForgotPassword';
 import Layout from './page/Layout';
 import Home from './page/Home';
-import Search from './page/Search';
 import RequireAuth from './components/RequireAuth';
 import Cart from './page/Cart';
 import NavbarProduct from './page/admin/NavbarProduct';
@@ -13,6 +12,14 @@ import CreateProduct from './page/admin/CreateProduct';
 import UpdateProduct from './page/admin/UpdateProduct';
 import PageNotFound from './page/PageNotFound';
 import Unauthorized from './page/Unauthorized';
+import ResetPassword from './page/ResetPassword';
+import Product from './page/Product';
+import LoadingLoginGoogle from './components/LoadingLoginGoogle';
+import Account from './page/Account';
+import Checkout from './page/Checkout';
+import PaymentSuccess from './page/PaymentSuccess';
+import Payment from './page/Payment';
+import Profile from './page/Profile';
 
 const routes = createBrowserRouter([
     {
@@ -24,8 +31,12 @@ const routes = createBrowserRouter([
         element: <Login />,
     },
     {
-        path: 'user/forgotPassword',
+        path: 'user/forgot-password',
         element: <ForgotPassword />,
+    },
+    {
+        path: 'user/reset-password/:id/:token',
+        element: <ResetPassword />,
     },
     {
         path: '/',
@@ -36,8 +47,8 @@ const routes = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: '/search',
-                element: <Search />,
+                path: '/product/:id',
+                element: <Product />,
             },
             {
                 element: <RequireAuth allowedRole={['admin', 'user']} />,
@@ -45,6 +56,26 @@ const routes = createBrowserRouter([
                     {
                         path: '/cart',
                         element: <Cart />,
+                    },
+                    {
+                        path: '/account',
+                        element: <Account />,
+                    },
+                    {
+                        path: '/checkout',
+                        element: <Checkout />,
+                    },
+                    {
+                        path: '/payment-success',
+                        element: <PaymentSuccess />,
+                    },
+                    {
+                        path: '/payment/:id',
+                        element: <Payment />,
+                    },
+                    {
+                        path: 'user/profile',
+                        element: <Profile />,
                     },
                 ],
             },
@@ -72,6 +103,10 @@ const routes = createBrowserRouter([
                 ],
             },
         ],
+    },
+    {
+        path: '/google/auth/callback',
+        element: <LoadingLoginGoogle />,
     },
     {
         path: '/unauthorized',

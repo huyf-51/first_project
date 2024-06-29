@@ -2,26 +2,31 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const AppError = require('../utils/AppError');
+const { url, oauth2Client } = require('../config/googleOauth2');
+const axios = require('axios');
 
 class UserController {
-    async login(req, res) {
+    async login(req, res, next) {
         console.log('handle login');
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
-            return res.json({ error: 'Incorrect email or password' });
+            return next(new AppError('Incorrect email or password', 400));
         }
         bcrypt.compare(
             req.body.password,
             user.password,
             async (err, result) => {
                 if (!result) {
-                    return res.json({ error: 'Incorrect email or password' });
+                    return next(
+                        new AppError('Incorrect email or password', 400)
+                    );
                 }
 
                 const accessToken = jwt.sign(
                     { id: user._id },
                     process.env.accessToken,
-                    { expiresIn: '3s' }
+                    { expiresIn: '10m' }
                 );
 
                 const newRefreshToken = jwt.sign(
@@ -30,56 +35,35 @@ class UserController {
                     { expiresIn: '1d' }
                 );
 
-                user.refreshToken = [...user.refreshToken, newRefreshToken];
+                user.refreshToken = newRefreshToken;
                 const newUser = await user.save();
                 const { password, refreshToken, role, ...otherInfo } =
                     newUser._doc;
-                res.cookie('refreshToken', newRefreshToken, {
-                    httpOnly: true,
-                }).json({
-                    data: otherInfo,
-                    auth: { accessToken, role },
-                });
+                res.status(200)
+                    .cookie('refreshToken', newRefreshToken, {
+                        httpOnly: true,
+                    })
+                    .json({
+                        data: otherInfo,
+                        auth: { accessToken, role },
+                    });
             }
         );
     }
-    async register(req, res) {
+    async register(req, res, next) {
+        console.log('handle register');
         const { email, password } = req.body;
         const foundUser = await User.findOne({ email: email });
         if (foundUser) {
-            return res.json({ error: 'the email is exist' });
+            return next(new AppError('the email is exist'));
         }
         const hash = await bcrypt.hash(password, 10);
         const newUser = new User({ email, password: hash });
         const user = await newUser.save();
-        res.json({ message: 'register success' });
+        res.status(200).json({ status: 'success' });
     }
 
     async logout(req, res) {
-        console.log('handle logout');
-        if (req.user) {
-            req.logout(next);
-            console.log('session: ', req.session);
-            req.session.destroy(() => {
-                return res.status(204);
-            });
-            // req.session = null
-            // res.clearCookie() // bug: cannot set header after sent to client
-        }
-        // if (req.user) {
-        //     req.session.user = null
-        //     req.session.save(function (err) {
-        //         if (err) return next(err)
-
-        //         // regenerate the session, which is good practice to help
-        //         // guard against forms of session fixation
-        //         req.session.regenerate(function (err) {
-        //             if (err) next(err)
-        //             return res.status(204)
-        //         })
-        //     })
-        // }
-
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) {
             return res.sendStatus(204);
@@ -95,33 +79,18 @@ class UserController {
                 });
         }
 
-        foundUser.refreshToken = foundUser.refreshToken.filter(
-            (refresh) => refresh != refreshToken
-        );
+        foundUser.refreshToken = '';
         const user = await foundUser.save();
         res.clearCookie('refreshToken', refreshToken, {
             httpOnly: true,
         }).sendStatus(204);
     }
 
-    // googleLoginFailed(req, res) {
-    //     return res.send('google login failed');
-    // }
-
-    // googleLoginSuccess(req, res) {
-    //     if (req.user) {
-    //         console.log('google login ok');
-    //         return res.sendStatus(200);
-    //     }
-    //     return res.sendStatus(401);
-    // }
-
-    async sendCode(req, res) {
-        const OTP = Math.floor(100000 + Math.random() * 900000);
+    async sendEmail(req, res, next) {
+        console.log('handle send mail');
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
-            console.log('user not found');
-            return res.json({ message: 'Account not found' });
+            return next(new AppError('Account not found'));
         }
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -133,33 +102,129 @@ class UserController {
             },
         });
 
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.TOKEN_RESET_PASSWORD,
+            {
+                expiresIn: '3m',
+            }
+        );
+
         const info = await transporter.sendMail({
             from: '',
             to: req.body.email,
             subject: 'Reset password',
             text: '',
             html: `
-                        <div>
-                            Your OTP: ${OTP}
+                    <div style="border: 1px solid; border-radius: 5px; padding: 20px;margin-right: 600px">
+                        <div style="margin-bottom: 20px;">
+                            To regain access to the site <a href="${process.env.CLIENT_URL}">Shopping web</a>, click the button:
                         </div>
-                    `,
+                        <a 
+                            href="${process.env.CLIENT_URL}/user/reset-password/${user._id}/${token}"
+                            style="background-color: gray; padding: 4px; text-decoration: none; color: black; border-radius: 4px; cursor: pointer;"
+                        >
+                        change my password
+                        </a>
+                        <div style="margin-top: 20px;">
+                            You can then enter a new password and reconnect to the site.
+                        </div>
+                    </div>
+                `,
         });
-        user.OTP = OTP;
-        console.log('user OTP: ', user.OTP);
-        const savedUser = await user.save();
-        return res.json({ message: 'send code success' });
+        return res.status(200).json({ status: 'success' });
     }
 
-    async updatePassword(req, res) {
-        const { email, newPassword, code } = req.body;
-        const user = await User.findOne({ email: email });
-        if (!user || user.OTP !== code)
-            return res.json({ message: 'wrong OTP' });
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.OTP = '';
-        const newUser = await user.save();
-        console.log('update password success');
-        return res.json({ message: 'success' });
+    async resetPassword(req, res, next) {
+        const { newPassword } = req.body;
+        const { id, token } = req.params;
+        const user = await User.findOne({ _id: id });
+        if (!user) return next(new AppError('Email is not exist'));
+        jwt.verify(
+            token,
+            process.env.TOKEN_RESET_PASSWORD,
+            async (error, decoded) => {
+                if (error) {
+                    return next(new AppError('you dont have permission'));
+                }
+                const user = await User.findOne({ _id: decoded.id });
+                if (!user) {
+                    return next(new AppError('you dont have permission'));
+                }
+                user.password = await bcrypt.hash(newPassword, 10);
+                const newUser = await user.save();
+                return res.json({ status: 'success' });
+            }
+        );
+    }
+
+    async loginWithGoogle(req, res, next) {
+        console.log('google');
+        res.json({ url });
+    }
+
+    async googleCallback(req, res, next) {
+        console.log('callback');
+        const { code } = req.query;
+        if (!code) {
+            return res.redirect(`${process.env.CLIENT_URL}/user/login`);
+        }
+        req.code = code;
+        next();
+    }
+    async googleSetLogin(req, res, next) {
+        const code = req.code;
+        const { tokens } = await oauth2Client.getToken(code);
+        const { data } = await axios.get(
+            `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokens.access_token}`
+        );
+        const { sub, email } = data;
+        const accessToken = jwt.sign({ id: sub }, process.env.accessToken, {
+            expiresIn: '10m',
+        });
+
+        const newRefreshToken = jwt.sign(
+            { id: sub },
+            process.env.refreshToken,
+            { expiresIn: '1d' }
+        );
+
+        const user = await User.findOne({ googleId: sub });
+        if (user) {
+            user.refreshToken = newRefreshToken;
+            await user.save();
+            const { password, refreshToken, role, ...otherInfo } = user._doc;
+            const auth = { accessToken, role };
+            res.status(200)
+                .cookie('refreshToken', newRefreshToken, {
+                    httpOnly: true,
+                })
+                .redirect(
+                    `${
+                        process.env.CLIENT_URL
+                    }/google/auth/callback?data=${JSON.stringify(
+                        otherInfo
+                    )}&auth=${JSON.stringify(auth)}`
+                );
+        } else {
+            const newUser = new User({ googleId: sub, email: email });
+            console.log('new user: ', newUser);
+            newUser.refreshToken = newRefreshToken;
+            await newUser.save();
+            const { password, refreshToken, role, ...otherInfo } = newUser._doc;
+            const auth = { accessToken, role };
+            res.status(200)
+                .cookie('refreshToken', newRefreshToken, {
+                    httpOnly: true,
+                })
+                .redirect(
+                    `${
+                        process.env.CLIENT_URL
+                    }/google/auth/callback?data=${JSON.stringify(
+                        otherInfo
+                    )}&auth=${JSON.stringify(auth)}`
+                );
+        }
     }
 }
 

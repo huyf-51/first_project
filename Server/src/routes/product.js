@@ -9,9 +9,11 @@ router.post(
     '/create',
     verifyToken,
     verifyRole('admin'),
+    catchAsync(productController.setImage),
     catchAsync(productController.create)
 );
 router.get('/list', catchAsync(productController.list));
+router.get('/get-product/:id', catchAsync(productController.getProductById));
 router.get(
     '/edit/:id',
     verifyToken,
@@ -30,24 +32,6 @@ router.delete(
     verifyRole('admin'),
     catchAsync(productController.delete)
 );
-// not completed
-router.get(
-    '/deleted_product',
-    verifyToken,
-    catchAsync(productController.listDeletedProduct)
-);
-// not completed
-router.patch(
-    '/restore',
-    verifyToken,
-    catchAsync(productController.restoreProduct)
-);
-// not completed
-router.delete(
-    '/permanently_deleted',
-    verifyToken,
-    catchAsync(productController.deletePermanentlyProduct)
-);
 router.get(
     '/sortByPrice',
     verifyToken,
@@ -60,7 +44,5 @@ router.post(
     verifyRole('admin'),
     catchAsync(productController.importProduct)
 );
-
-router.get('/search', catchAsync(productController.searchProduct));
 
 module.exports = router;

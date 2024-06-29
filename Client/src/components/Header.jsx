@@ -9,6 +9,9 @@ import ManageProduct from './button/ManageButton';
 import LogoutButton from './button/LogoutButton';
 import AccountButton from './button/AccoutButton';
 import Button from 'react-bootstrap/esm/Button';
+import ProfileButton from './button/ProfileButton';
+import Row from 'react-bootstrap/esm/Row';
+import Col from 'react-bootstrap/esm/Col';
 
 function Header() {
     const auth = JSON.parse(localStorage.getItem('auth'));
@@ -25,12 +28,19 @@ function Header() {
                                     navigate('/');
                                 }}
                                 variant="light"
-                                className="nav-link"
+                                className="nav-link me-4"
                             >
                                 Home
                             </Button>
                             {localStorage.getItem('auth') ? (
-                                <LogoutButton />
+                                <Row>
+                                    <Col>
+                                        <ProfileButton />
+                                    </Col>
+                                    <Col>
+                                        <LogoutButton />
+                                    </Col>
+                                </Row>
                             ) : (
                                 <>
                                     <AccountButton />

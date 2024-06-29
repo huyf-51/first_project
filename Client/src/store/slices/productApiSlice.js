@@ -3,12 +3,13 @@ import { apiSlice } from './apiSlice';
 const productApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getProducts: builder.query({
-            query: () => 'product/list',
+            query: (keyword) => `product/list?keyword=${keyword}`,
         }),
         createProduct: builder.mutation({
-            query: () => ({
+            query: (product) => ({
                 url: 'product/create',
                 method: 'POST',
+                body: product,
             }),
         }),
         findProductById: builder.query({
@@ -32,6 +33,16 @@ const productApi = apiSlice.injectEndpoints({
         searchProduct: builder.query({
             query: (keyword) => `product/search?keyword=${keyword}`,
         }),
+        importProducts: builder.mutation({
+            query: (products) => ({
+                url: 'product/import',
+                method: 'POST',
+                body: products,
+            }),
+        }),
+        getProductById: builder.query({
+            query: (id) => `/product/get-product/${id}`,
+        }),
     }),
 });
 
@@ -42,4 +53,6 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useSearchProductQuery,
+    useImportProductsMutation,
+    useGetProductByIdQuery,
 } = productApi;

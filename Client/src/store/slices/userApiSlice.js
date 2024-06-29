@@ -22,18 +22,23 @@ const userApi = apiSlice.injectEndpoints({
                 method: 'POST',
             }),
         }),
-        sendCodeByMail: builder.mutation({
+        sendMail: builder.mutation({
             query: (email) => ({
-                url: 'user/forgotPassword/sendCode',
+                url: 'user/forgot-password/send-mail',
                 method: 'POST',
                 body: email,
             }),
         }),
-        updatePassword: builder.mutation({
-            query: (credentials) => ({
-                url: 'user/forgotPassword/update',
+        resetPassword: builder.mutation({
+            query: ({ newPassword, id, token }) => ({
+                url: `user/forgot-password/reset/${id}/${token}`,
                 method: 'PUT',
-                body: credentials,
+                body: { newPassword },
+            }),
+        }),
+        getGoogleAuthUrl: builder.query({
+            query: () => ({
+                url: `user/auth/google`,
             }),
         }),
     }),
@@ -43,6 +48,7 @@ export const {
     useLoginMutation,
     useLogoutMutation,
     useRegisterMutation,
-    useSendCodeByMailMutation,
-    useUpdatePasswordMutation,
+    useSendMailMutation,
+    useResetPasswordMutation,
+    useGetGoogleAuthUrlQuery,
 } = userApi;

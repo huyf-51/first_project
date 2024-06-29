@@ -1,93 +1,98 @@
 const Product = require('../models/Product');
-const appError = require('../utils/appError');
+const AppError = require('../utils/AppError');
+const cloudinary = require('../config/cloudStoreFile');
 
 class ProductController {
     async create(req, res) {
-        const product = new Product(req.body);
-        const newProduct = await product.save();
-        console.log('save product: ', newProduct);
-        res.json({ message: 'Create Product Successfully' });
-    }
-
-    async list(req, res, next) {
-        console.log('list product');
-        const allProduct = await Product.find();
-        res.json(allProduct);
-    }
-
-    async edit(req, res) {
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            next(new appError('No product for that id', 404));
-        }
-        res.json(product);
-    }
-
-    async update(req, res) {
-        const updatedProduct = await Product.updateOne(
-            { _id: req.params.id },
-            req.body
-        );
-        if (!updatedProduct) {
-            return next(new appError('No product for that id', 404));
-        }
-        res.json({ message: 'update success' });
-    }
-
-    async delete(req, res) {
-        const deletedProduct = await Product.deleteOne({
-            _id: req.params.id,
+        console.log('handle create product');
+        const product = new Product({
+            ...req.body,
+            image: req.imageUrl,
+            imageId: req.imageId,
         });
-        console.log('product deleted');
-        if (!deletedProduct) {
-            return next(new appError('No product for that id', 404));
-        }
-        res.send('delete success');
-    }
-    // not completed
-    listDeletedProduct(req, res, next) {
-        Product.findDeleted({})
-            .then((allDeletedProduct) => {
-                res.json(allDeletedProduct);
-            })
-            .catch(next);
-    }
-    // not completed
-    restoreProduct(req, res, next) {
-        Product.restore({ _id: req.body.id })
-            .then(() => {
-                res.json({ message: 'restore success' });
-            })
-            .catch(next);
-    }
-    // not completed
-    deletePermanentlyProduct(req, res, next) {
-        Product.deleteOne({ _id: req.body.id })
-            .then(() => {
-                res.json({ message: 'delete success' });
-            })
-            .catch(next);
+        const newProduct = await product.save();
+        res.status(200).json({ status: 'success' });
     }
 
-    async sortByPrice(req, res) {
-        const allProduct = await Product.find();
-        res.json(allProduct.sort((a, b) => a.price - b.price));
+    async setImage(req, res, next) {
+        const { image } = req.body;
+        await cloudinary.uploader.upload(image, (result, error) => {
+            if (error) {
+                return next(new AppError(error));
+            }
+            req.imageUrl = result.url;
+            req.imageId = result.public_id;
+        });
+        next();
     }
 
-    async importProduct(req, res) {
-        const insertProduct = await Product.insertMany(req.body);
-        const allProducts = await Product.find();
-        res.json(allProducts);
-    }
-    async searchProduct(req, res) {
-        console.log('keyword: ', req.query.keyword);
+    async list(req, res) {
+        console.log('handle list product');
         const foundProduct = await Product.find({
             productName: {
                 $regex: req.query.keyword,
                 $options: 'i',
             },
         });
-        res.json(foundProduct);
+        res.status(200).json(foundProduct);
+    }
+
+    async getProductById(req, res, next) {
+        const id = req.params.id;
+        const product = await Product.findById(id);
+
+        if (product) {
+            res.json({ product });
+        } else {
+            next(new AppError('No product for that id', 404));
+        }
+    }
+
+    async edit(req, res, next) {
+        console.log('handle get product');
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            next(new AppError('No product for that id', 404));
+        }
+        res.status(200).json(product);
+    }
+
+    async update(req, res, next) {
+        console.log('handle update product');
+        const updatedProduct = await Product.updateOne(
+            { _id: req.params.id },
+            req.body
+        );
+        if (!updatedProduct) {
+            return next(new AppError('No product for that id', 404));
+        }
+        res.status(200).json({ status: 'success' });
+    }
+
+    async delete(req, res, next) {
+        console.log('handle delete product');
+        const product = await Product.findById(req.params.id);
+        const imageId = product?.imageId;
+        const deletedProduct = await Product.deleteOne({
+            _id: req.params.id,
+        });
+        if (!deletedProduct) {
+            return next(new AppError('No product for that id', 404));
+        }
+        await cloudinary.uploader.destroy(imageId);
+        res.status(200).json({ status: 'success' });
+    }
+    async sortByPrice(req, res) {
+        console.log('handle sort product by price');
+        const allProduct = await Product.find();
+        res.status(200).json(allProduct.sort((a, b) => a.price - b.price));
+    }
+
+    async importProduct(req, res) {
+        console.log('handle import product');
+        const insertProduct = await Product.insertMany(req.body);
+        const allProducts = await Product.find();
+        res.status(200).json(allProducts);
     }
 }
 

@@ -6,15 +6,13 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import GoogleLoginButton from '../components/button/GoogleLoginButton';
 import { useDispatch } from 'react-redux';
-import { useLoginMutation } from '../slices/userApiSlice';
-import { setCredentials } from '../slices/authSlice';
+import { useLoginMutation } from '../store/slices/userApiSlice';
+import { setCredentials } from '../store/slices/userSlice';
 
 function Login() {
     const navigate = useNavigate();
-    const [error, setError] = useState();
     const dispatch = useDispatch();
-    const [login, result] = useLoginMutation();
-
+    const [login, { error }] = useLoginMutation();
     const [input, setInput] = useState({
         email: '',
         password: '',
@@ -28,23 +26,11 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // axios.post('/user/login', input)
-        //     .then((res) => {
-        //         if (res.data?.error) {
-        //             setError(res.data?.error)
-        //         } else {
-        //             localStorage.setItem("persist", true)
-        //             setAuth(res.data)
-        //             navigate('/')
-        //         }
-        //     })
-        const data = await login(input).unwrap();
-        if (data.error) {
-            setError(data.error);
-        } else {
+        try {
+            const data = await login(input).unwrap();
             dispatch(setCredentials(data));
             navigate('/');
-        }
+        } catch (error) {}
     };
     return (
         <Container
@@ -76,11 +62,11 @@ function Login() {
                 </Button>
                 {error && (
                     <Form.Group>
-                        <Form.Text>{error}</Form.Text>
+                        <Form.Text>{error.data.message}</Form.Text>
                     </Form.Group>
                 )}
                 <Form.Group className="mt-2 mb-2">
-                    <Link to="/user/forgotPassword">Forgot Password</Link>
+                    <Link to="/user/forgot-password">Forgot Password</Link>
                 </Form.Group>
                 <Form.Group className="mt-1">
                     <Form.Text className="text-dark">

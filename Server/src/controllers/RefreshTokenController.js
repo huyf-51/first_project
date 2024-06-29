@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 class RefreshTokenController {
     async refreshToken(req, res) {
-        console.log('refresh token');
+        console.log('handle refresh token');
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) return res.sendStatus(401);
 
@@ -17,15 +17,9 @@ class RefreshTokenController {
                 });
         }
 
-        const newRefreshTokenArray = foundUser.refreshToken.filter(
-            (rt) => rt != refreshToken
-        );
-
         jwt.verify(refreshToken, process.env.refreshToken, async (error) => {
             if (error) {
-                foundUser.refreshToken = [...newRefreshTokenArray];
-                const result = await foundUser.save();
-
+                foundUser.refreshToken = '';
                 return res
                     .sendStatus(403)
                     .clearCookie('refreshToken', refreshToken, {
@@ -35,7 +29,7 @@ class RefreshTokenController {
             const accessToken = jwt.sign(
                 { id: foundUser._id },
                 process.env.accessToken,
-                { expiresIn: '3s' }
+                { expiresIn: '10m' }
             );
 
             const newRefreshToken = jwt.sign(
@@ -44,7 +38,7 @@ class RefreshTokenController {
                 { expiresIn: '1d' }
             );
 
-            foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+            foundUser.refreshToken = newRefreshToken;
             const user = await foundUser.save();
 
             const { password, refreshToken, role, ...otherDetail } =

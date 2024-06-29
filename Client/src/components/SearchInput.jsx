@@ -3,16 +3,10 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/esm/Container';
-import { useNavigate } from 'react-router-dom';
 
 function SearchInput() {
-    const navigate = useNavigate()
-    const handleSubmit = (event) => {
-        navigate('/search')
-    }
-
     return (
-        <Form style={{ width: 600 }} onSubmit={handleSubmit}>
+        <Form style={{ width: 600 }}>
             <Container fluid>
                 <Row>
                     <Col>

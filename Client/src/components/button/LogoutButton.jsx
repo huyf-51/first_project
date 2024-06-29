@@ -1,18 +1,18 @@
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
-import { useLogoutMutation } from '../../slices/userApiSlice';
+import { useLogoutMutation } from '../../store/slices/userApiSlice';
 import { useDispatch } from 'react-redux';
-import { setLogout } from '../../slices/authSlice';
+import { setLogout } from '../../store/slices/userSlice';
 
 function LogoutButton() {
     const navigate = useNavigate();
-    const [logout, result] = useLogoutMutation();
+    const [logout] = useLogoutMutation();
     const dispatch = useDispatch();
 
     const handleLogout = async () => {
         await logout().unwrap();
         dispatch(setLogout());
-        navigate('/user/login');
+        navigate('/');
     };
     return (
         <Button variant="primary" onClick={handleLogout} className="nav-link">

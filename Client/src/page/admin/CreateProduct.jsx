@@ -1,17 +1,20 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/esm/Container';
-import { useState } from 'react';
-import { useCreateProductMutation } from '../../slices/productApiSlice';
+import { useRef, useState } from 'react';
+import { useCreateProductMutation } from '../../store/slices/productApiSlice';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/esm/Row';
 
 function CreateProduct() {
-    const [message, setMessage] = useState(undefined);
     const [input, setInput] = useState({
         productName: '',
         image: '',
         price: '',
     });
-    const [createProduct, result] = useCreateProductMutation();
+    const inputFile = useRef();
+
+    const [createProduct, { data }] = useCreateProductMutation();
 
     const handleInput = (e) => {
         setInput((preInput) => {
@@ -19,24 +22,40 @@ function CreateProduct() {
         });
     };
 
+    const handleInputFile = (e) => {
+        const reader = new FileReader();
+        if (e.target.files[0]) {
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
+        setInput((preInput) => {
+            return { ...preInput, [e.target.id]: '' };
+        });
+
+        reader.onloadend = () => {
+            setInput((preInput) => {
+                return { ...preInput, [e.target.id]: reader?.result };
+            });
+        };
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // axios.post('/product/create', input).then((res) => {
-        //     setMessage(res.data.message);
-        // });
-        const data = await createProduct(input).unwrap();
-        setMessage(data.message);
-        setInput({
-            productName: '',
-            image: '',
-            price: '',
-        });
+        try {
+            await createProduct(input).unwrap();
+            inputFile.current.value = '';
+            setInput({
+                productName: '',
+                image: '',
+                price: '',
+            });
+        } catch (error) {}
     };
 
     return (
         <>
             <Container className="mt-5">
-                <Form>
+                <Form encType="multipart/form-data">
                     <Form.Group className="mb-3" controlId="productName">
                         <Form.Label>Product Name</Form.Label>
                         <Form.Control
@@ -51,14 +70,20 @@ function CreateProduct() {
                     <Form.Group className="mb-3" controlId="image">
                         <Form.Label>Image</Form.Label>
                         <Form.Control
-                            type="text"
-                            placeholder="Enter image url"
-                            value={input.image}
-                            onChange={handleInput}
+                            ref={inputFile}
+                            type="file"
+                            onChange={handleInputFile}
                             required
                         />
                     </Form.Group>
-
+                    <Form.Group className="mb-3" controlId="image">
+                        <Row>
+                            <Form.Label>Image Preview</Form.Label>
+                        </Row>
+                        <Row>
+                            <Image src={input.image} className="w-50" />
+                        </Row>
+                    </Form.Group>
                     <Form.Group className="mb-3" controlId="price">
                         <Form.Label>Price</Form.Label>
                         <Form.Control
@@ -78,9 +103,11 @@ function CreateProduct() {
                         Create
                     </Button>
 
-                    <Form.Group>
-                        <Form.Text>{message}</Form.Text>
-                    </Form.Group>
+                    {data && (
+                        <Form.Group>
+                            <Form.Text>{data.status}</Form.Text>
+                        </Form.Group>
+                    )}
                 </Form>
             </Container>
         </>

@@ -7,42 +7,41 @@ import { useParams } from 'react-router-dom';
 import {
     useFindProductByIdQuery,
     useUpdateProductMutation,
-} from '../../slices/productApiSlice';
+} from '../../store/slices/productApiSlice';
+import ProductNotExist from '../../components/ProductNotExist';
 
 function UpdateProduct() {
-    const [message, setMessage] = useState(undefined);
+    console.log('update');
     const { id } = useParams();
-    const [input, setInput] = useState({
+    const [product, setProduct] = useState({
         productName: '',
         image: '',
         price: '',
     });
 
-    const handleInput = (e) => {
-        setInput((preInput) => {
-            return { ...preInput, [e.target.id]: e.target.value };
+    const handleproduct = (e) => {
+        setProduct((preProduct) => {
+            return { ...preProduct, [e.target.id]: e.target.value };
         });
     };
-
-    // useEffect(() => {
-    //     axios.get(`/product/edit/${id}`).then((res) => {
-    //         setInput((preInput) => {
-    //             return { ...preInput, ...res.data };
-    //         });
-    //     });
-    // }, []);
-    const { data } = useFindProductByIdQuery(id);
-    const [updateProduct, result] = useUpdateProductMutation();
+    const { data, isError } = useFindProductByIdQuery(id);
+    useEffect(() => {
+        setProduct((preproduct) => {
+            return { ...preproduct, ...data };
+        });
+    }, [data]);
+    const [updateProduct, resultUpdate] = useUpdateProductMutation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // axios.patch(`/product/update/${id}`, input).then((res) => {
-        //     console.log('updated');
-        //     setMessage(res.data.message);
-        // });
-        const data = await updateProduct({ id, input }).unwrap();
-        setMessage(data.message);
+        try {
+            await updateProduct({ id, product }).unwrap();
+        } catch (error) {}
     };
+
+    if (isError || resultUpdate.isError) {
+        return <ProductNotExist />;
+    }
 
     return (
         <>
@@ -53,8 +52,8 @@ function UpdateProduct() {
                         <Form.Control
                             type="text"
                             placeholder="Enter product name"
-                            value={input.productName}
-                            onChange={handleInput}
+                            value={product.productName}
+                            onChange={handleproduct}
                             required
                         />
                     </Form.Group>
@@ -64,8 +63,8 @@ function UpdateProduct() {
                         <Form.Control
                             type="text"
                             placeholder="Enter image url"
-                            value={input.image}
-                            onChange={handleInput}
+                            value={product.image}
+                            onChange={handleproduct}
                             required
                         />
                     </Form.Group>
@@ -75,8 +74,8 @@ function UpdateProduct() {
                         <Form.Control
                             type="text"
                             placeholder="Enter price"
-                            value={input.price}
-                            onChange={handleInput}
+                            value={product.price}
+                            onChange={handleproduct}
                             required
                         />
                     </Form.Group>
@@ -87,9 +86,11 @@ function UpdateProduct() {
                     >
                         Update
                     </Button>
-                    <Form.Group>
-                        <Form.Text>{message}</Form.Text>
-                    </Form.Group>
+                    {resultUpdate.data && (
+                        <Form.Group>
+                            <Form.Text>{resultUpdate.data.status}</Form.Text>
+                        </Form.Group>
+                    )}
                 </Form>
             </Container>
         </>
