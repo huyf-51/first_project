@@ -7,7 +7,7 @@ function route(app) {
     app.use('/user', userRouter);
     app.use('/product', productRouter);
     app.use('/refresh', refreshTokenRouter);
-    app.use('/order', orderRouter);
+    // app.use('/order', orderRouter);
 }
 
 module.exports = route;

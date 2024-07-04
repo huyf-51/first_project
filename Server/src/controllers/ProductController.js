@@ -5,23 +5,23 @@ const cloudinary = require('../config/cloudStoreFile');
 class ProductController {
     async create(req, res) {
         console.log('handle create product');
+        const { quantity: inStock, ...other } = req.body;
         const product = new Product({
-            ...req.body,
-            image: req.imageUrl,
-            imageId: req.imageId,
+            ...other,
+            imageUrl: req.imageUrl,
+            inStock,
         });
         const newProduct = await product.save();
         res.status(200).json({ status: 'success' });
     }
 
     async setImage(req, res, next) {
-        const { image } = req.body;
-        await cloudinary.uploader.upload(image, (result, error) => {
+        const { imageUrl } = req.body;
+        await cloudinary.uploader.upload(imageUrl, (result, error) => {
             if (error) {
                 return next(new AppError(error));
             }
             req.imageUrl = result.url;
-            req.imageId = result.public_id;
         });
         next();
     }

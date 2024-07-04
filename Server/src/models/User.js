@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
 
 const User = new mongoose.Schema({
-    email: String,
-    password: String,
+    email: {
+        type: String,
+        require: true,
+    },
+    password: {
+        type: String,
+        require: true,
+    },
     refreshToken: String,
     role: {
         type: String,
@@ -10,7 +16,6 @@ const User = new mongoose.Schema({
         default: 'user',
     },
     googleId: String,
-    username: String,
 });
 
 module.exports = mongoose.model('User', User);
