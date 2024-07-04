@@ -20,6 +20,7 @@ import Checkout from './page/Checkout';
 import PaymentSuccess from './page/PaymentSuccess';
 import Payment from './page/Payment';
 import Profile from './page/Profile';
+import ResetPasswordExpired from './page/ResetPasswordExpired';
 
 const routes = createBrowserRouter([
     {
@@ -37,6 +38,10 @@ const routes = createBrowserRouter([
     {
         path: 'user/reset-password/:id/:token',
         element: <ResetPassword />,
+    },
+    {
+        path: 'user/reset-password-fail',
+        element: <ResetPasswordExpired />,
     },
     {
         path: '/',

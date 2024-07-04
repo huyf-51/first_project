@@ -9,8 +9,8 @@ function ProductCard({ prop }) {
                 <Link to={`/product/${prop._id}`}>
                     <Card.Img
                         variant="top"
-                        src={prop.image}
-                        style={{ height: 140 }}
+                        src={prop.imageUrl}
+                        style={{ height: 170 }}
                     />
                     <Card.Body>
                         <Card.Title>{prop.productName}</Card.Title>

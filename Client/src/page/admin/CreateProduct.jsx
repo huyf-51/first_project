@@ -9,8 +9,10 @@ import Row from 'react-bootstrap/esm/Row';
 function CreateProduct() {
     const [input, setInput] = useState({
         productName: '',
-        image: '',
+        imageUrl: '',
         price: '',
+        quantity: undefined,
+        category: 'ipad',
     });
     const inputFile = useRef();
 
@@ -46,8 +48,10 @@ function CreateProduct() {
             inputFile.current.value = '';
             setInput({
                 productName: '',
-                image: '',
+                imageUrl: '',
                 price: '',
+                quantity: '',
+                category: 'ipad',
             });
         } catch (error) {}
     };
@@ -66,8 +70,19 @@ function CreateProduct() {
                             required
                         />
                     </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="image">
+                    <Form.Group className="mb-3" controlId="category">
+                        <Form.Label>Category</Form.Label>
+                        <Form.Select
+                            onChange={handleInput}
+                            value={input.category}
+                        >
+                            <option value="ipad">Ipad</option>
+                            <option value="iphone">Iphone</option>
+                            <option value="mac">Mac</option>
+                            <option value="watch">Watch</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="imageUrl">
                         <Form.Label>Image</Form.Label>
                         <Form.Control
                             ref={inputFile}
@@ -76,12 +91,12 @@ function CreateProduct() {
                             required
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="image">
+                    <Form.Group className="mb-3" controlId="imageUrl">
                         <Row>
                             <Form.Label>Image Preview</Form.Label>
                         </Row>
                         <Row>
-                            <Image src={input.image} className="w-50" />
+                            <Image src={input.imageUrl} className="w-50" />
                         </Row>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="price">
@@ -90,6 +105,16 @@ function CreateProduct() {
                             type="text"
                             placeholder="Enter price"
                             value={input.price}
+                            onChange={handleInput}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="quantity">
+                        <Form.Label>Quantity</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter quantity"
+                            value={input.quantity}
                             onChange={handleInput}
                             required
                         />

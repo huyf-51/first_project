@@ -5,6 +5,10 @@ import Image from 'react-bootstrap/Image';
 import totalPrice from '../utils/cartUtils';
 import Button from 'react-bootstrap/esm/Button';
 import { useNavigate } from 'react-router-dom';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 
 function Cart() {
     const navigate = useNavigate();
@@ -27,12 +31,13 @@ function Cart() {
                 </div>
             ) : (
                 <div>
-                    <Table hover>
+                    <Table>
                         <thead>
                             <tr>
                                 <th>Product</th>
                                 <th>Title</th>
                                 <th>Price</th>
+                                <th>Quantity</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,12 +45,35 @@ function Cart() {
                                 <tr key={index}>
                                     <td>
                                         <Image
-                                            src={cartItem.image}
+                                            src={cartItem.imageUrl}
                                             className="w-25"
                                         />
                                     </td>
                                     <td>{cartItem.productName}</td>
-                                    <td>{cartItem.price}</td>
+                                    <td>
+                                        {cartItem.price * cartItem.quantity}
+                                    </td>
+                                    <td>
+                                        <Row className="mt-2">
+                                            <Col>
+                                                <Button variant="secondary">
+                                                    <FontAwesomeIcon
+                                                        icon={faMinus}
+                                                    />
+                                                </Button>
+                                            </Col>
+                                            <Col>
+                                                <div>{cartItem.quantity}</div>
+                                            </Col>
+                                            <Col>
+                                                <Button variant="secondary">
+                                                    <FontAwesomeIcon
+                                                        icon={faPlus}
+                                                    />
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

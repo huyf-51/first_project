@@ -36,7 +36,9 @@ function ResetPassword() {
                     token,
                 }).unwrap();
                 navigate('/user/login');
-            } catch (error) {}
+            } catch (error) {
+                navigate('/user/reset-password-fail');
+            }
         },
     });
 

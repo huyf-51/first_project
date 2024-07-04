@@ -1,6 +1,6 @@
-import { apiSlice } from './apiSlice';
+import { privateApiSlice } from './privateApiSlice';
 
-const orderApi = apiSlice.injectEndpoints({
+const orderPrivateApi = privateApiSlice.injectEndpoints({
     endpoints: (builder) => ({
         createOrder: builder.mutation({
             query: (data) => ({
@@ -43,4 +43,4 @@ export const {
     useComfirmPaymentOrderMutation,
     useGetAllOrderQuery,
     useSetPaymentMutation,
-} = orderApi;
+} = orderPrivateApi;
