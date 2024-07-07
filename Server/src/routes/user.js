@@ -6,10 +6,10 @@ const catchAsync = require('../utils/catchAsync');
 router.post('/login', catchAsync(userController.login));
 router.post('/register', catchAsync(userController.register));
 router.post('/logout', catchAsync(userController.logout));
-router.get('/auth/google', catchAsync(userController.loginWithGoogle));
+router.get('/auth/google', userController.loginWithGoogle);
 router.get(
     '/auth/google/callback',
-    catchAsync(userController.googleCallback),
+    userController.googleCallback,
     catchAsync(userController.googleSetLogin)
 );
 router.post('/forgot-password/send-mail', catchAsync(userController.sendEmail));

@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 
 class RefreshTokenController {
     async refreshToken(req, res) {
-        console.log('handle refresh token');
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) return res.sendStatus(401);
 

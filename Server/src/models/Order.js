@@ -4,46 +4,39 @@ const Order = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        require: true,
+        required: true,
     },
     orderItems: {
         type: [
             {
-                productName: {
-                    type: String,
-                    require: true,
-                },
-                imageUrl: {
-                    type: String,
-                    require: true,
-                },
-                price: {
-                    type: Number,
-                    require: true,
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product',
+                    required: true,
                 },
                 quantity: {
                     type: Number,
-                    require: true,
+                    required: true,
                 },
             },
         ],
-        require: true,
+        required: true,
     },
     shippingAddress: {
         type: String,
-        require: true,
+        required: true,
     },
     fullName: {
         type: String,
-        require: true,
+        required: true,
     },
     phoneNumber: {
         type: String,
-        require: true,
+        required: true,
     },
     totalPrice: {
         type: Number,
-        require: true,
+        required: true,
     },
     isPayed: {
         type: Boolean,

@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const User = new mongoose.Schema({
     email: {
         type: String,
-        require: true,
+        required: true,
     },
     password: {
         type: String,
-        require: true,
+        required: true,
     },
     refreshToken: String,
     role: {

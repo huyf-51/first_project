@@ -8,7 +8,6 @@ const axios = require('axios');
 
 class UserController {
     async login(req, res, next) {
-        console.log('handle login');
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
             return next(new AppError('Incorrect email or password', 400));
@@ -51,7 +50,6 @@ class UserController {
         );
     }
     async register(req, res, next) {
-        console.log('handle register');
         const { email, password } = req.body;
         const foundUser = await User.findOne({ email: email });
         if (foundUser) {
@@ -87,7 +85,6 @@ class UserController {
     }
 
     async sendEmail(req, res, next) {
-        console.log('handle send mail');
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
             return next(new AppError('Account not found'));
@@ -158,13 +155,11 @@ class UserController {
         );
     }
 
-    async loginWithGoogle(req, res, next) {
-        console.log('google');
+    loginWithGoogle(req, res, next) {
         res.json({ url });
     }
 
-    async googleCallback(req, res, next) {
-        console.log('callback');
+    googleCallback(req, res, next) {
         const { code } = req.query;
         if (!code) {
             return res.redirect(`${process.env.CLIENT_URL}/user/login`);
@@ -179,52 +174,41 @@ class UserController {
             `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokens.access_token}`
         );
         const { sub, email } = data;
-        const accessToken = jwt.sign({ id: sub }, process.env.accessToken, {
-            expiresIn: '10m',
-        });
+
+        let user = await User.findOne({ googleId: sub });
+        if (!user) {
+            const password = await bcrypt.hash(sub, 10);
+            user = new User({ googleId: sub, email, password });
+            await user.save();
+        }
+        const accessToken = jwt.sign(
+            { id: user._id },
+            process.env.accessToken,
+            { expiresIn: '10m' }
+        );
 
         const newRefreshToken = jwt.sign(
-            { id: sub },
+            { id: user._id },
             process.env.refreshToken,
             { expiresIn: '1d' }
         );
 
-        const user = await User.findOne({ googleId: sub });
-        if (user) {
-            user.refreshToken = newRefreshToken;
-            await user.save();
-            const { password, refreshToken, role, ...otherInfo } = user._doc;
-            const auth = { accessToken, role };
-            res.status(200)
-                .cookie('refreshToken', newRefreshToken, {
-                    httpOnly: true,
-                })
-                .redirect(
-                    `${
-                        process.env.CLIENT_URL
-                    }/google/auth/callback?data=${JSON.stringify(
-                        otherInfo
-                    )}&auth=${JSON.stringify(auth)}`
-                );
-        } else {
-            const newUser = new User({ googleId: sub, email: email });
-            console.log('new user: ', newUser);
-            newUser.refreshToken = newRefreshToken;
-            await newUser.save();
-            const { password, refreshToken, role, ...otherInfo } = newUser._doc;
-            const auth = { accessToken, role };
-            res.status(200)
-                .cookie('refreshToken', newRefreshToken, {
-                    httpOnly: true,
-                })
-                .redirect(
-                    `${
-                        process.env.CLIENT_URL
-                    }/google/auth/callback?data=${JSON.stringify(
-                        otherInfo
-                    )}&auth=${JSON.stringify(auth)}`
-                );
-        }
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        const { password, refreshToken, role, ...otherInfo } = user._doc;
+        const auth = { accessToken, role };
+        res.status(200)
+            .cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+            })
+            .redirect(
+                `${
+                    process.env.CLIENT_URL
+                }/google/auth/callback?data=${JSON.stringify(
+                    otherInfo
+                )}&auth=${JSON.stringify(auth)}`
+            );
     }
 }
 

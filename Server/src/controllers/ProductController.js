@@ -4,11 +4,11 @@ const cloudinary = require('../config/cloudStoreFile');
 
 class ProductController {
     async create(req, res) {
-        console.log('handle create product');
         const { quantity: inStock, ...other } = req.body;
         const product = new Product({
             ...other,
             imageUrl: req.imageUrl,
+            imageId: req.imageId,
             inStock,
         });
         const newProduct = await product.save();
@@ -22,12 +22,12 @@ class ProductController {
                 return next(new AppError(error));
             }
             req.imageUrl = result.url;
+            req.imageId = result.public_id;
         });
         next();
     }
 
     async list(req, res) {
-        console.log('handle list product');
         const foundProduct = await Product.find({
             productName: {
                 $regex: req.query.keyword,
@@ -49,7 +49,6 @@ class ProductController {
     }
 
     async edit(req, res, next) {
-        console.log('handle get product');
         const product = await Product.findById(req.params.id);
         if (!product) {
             next(new AppError('No product for that id', 404));
@@ -58,7 +57,6 @@ class ProductController {
     }
 
     async update(req, res, next) {
-        console.log('handle update product');
         const updatedProduct = await Product.updateOne(
             { _id: req.params.id },
             req.body
@@ -70,7 +68,6 @@ class ProductController {
     }
 
     async delete(req, res, next) {
-        console.log('handle delete product');
         const product = await Product.findById(req.params.id);
         const imageId = product?.imageId;
         const deletedProduct = await Product.deleteOne({
@@ -83,13 +80,11 @@ class ProductController {
         res.status(200).json({ status: 'success' });
     }
     async sortByPrice(req, res) {
-        console.log('handle sort product by price');
         const allProduct = await Product.find();
         res.status(200).json(allProduct.sort((a, b) => a.price - b.price));
     }
 
     async importProduct(req, res) {
-        console.log('handle import product');
         const insertProduct = await Product.insertMany(req.body);
         const allProducts = await Product.find();
         res.status(200).json(allProducts);

@@ -9,6 +9,7 @@ const route = require('../src/routes/index');
 const globalErrorHandler = require('./controllers/ErrorController');
 const AppError = require('./utils/AppError');
 const morgan = require('morgan');
+const { connectRedis } = require('../src/config/redis');
 
 app.use(cookieParser());
 
@@ -23,6 +24,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: 400000000 }));
 
+connectRedis();
 connectDB();
 
 route(app);

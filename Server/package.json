@@ -34,6 +34,7 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
+    "redis": "^4.6.15",
     "stripe": "^15.5.0"
   }
 }

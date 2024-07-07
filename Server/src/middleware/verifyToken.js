@@ -9,9 +9,8 @@ const verifyToken = (req, res, next) => {
             return next(new AppError('you dont have permission', 403));
         }
         const user = await User.findOne({ _id: decoded.id });
-        const userGoogle = await User.findOne({ sub: decoded.id });
 
-        if (!user && !userGoogle) {
+        if (!user) {
             return next(new AppError('you dont have permission', 403));
         }
         req.role = user.role;
