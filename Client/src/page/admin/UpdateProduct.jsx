@@ -1,7 +1,8 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/esm/Container';
-
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/esm/Row';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -11,15 +12,14 @@ import {
 import ProductNotExist from '../../components/ProductNotExist';
 
 function UpdateProduct() {
-    console.log('update');
     const { id } = useParams();
     const [product, setProduct] = useState({
         productName: '',
-        image: '',
         price: '',
+        inStock: '',
     });
 
-    const handleproduct = (e) => {
+    const handleProduct = (e) => {
         setProduct((preProduct) => {
             return { ...preProduct, [e.target.id]: e.target.value };
         });
@@ -45,7 +45,7 @@ function UpdateProduct() {
 
     return (
         <>
-            <Container className="mt-5">
+            <Container className="mt-5 mb-5">
                 <Form>
                     <Form.Group className="mb-3" controlId="productName">
                         <Form.Label>Product Name</Form.Label>
@@ -53,29 +53,26 @@ function UpdateProduct() {
                             type="text"
                             placeholder="Enter product name"
                             value={product.productName}
-                            onChange={handleproduct}
                             required
                         />
                     </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="image">
-                        <Form.Label>Image</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter image url"
-                            value={product.image}
-                            onChange={handleproduct}
-                            required
-                        />
-                    </Form.Group>
-
                     <Form.Group className="mb-3" controlId="price">
                         <Form.Label>Price</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Enter price"
                             value={product.price}
-                            onChange={handleproduct}
+                            onChange={handleProduct}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="inStock">
+                        <Form.Label>In Stock</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter quantity"
+                            value={product.inStock}
+                            onChange={handleProduct}
                             required
                         />
                     </Form.Group>

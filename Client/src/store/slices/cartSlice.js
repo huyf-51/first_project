@@ -25,9 +25,33 @@ const cartSlice = createSlice({
             localStorage.removeItem('cart');
             return [];
         },
+        setCart(state, action) {
+            const cart = action.payload;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            return cart;
+        },
+        addProduct(state, action) {
+            const itemId = action.payload;
+            for (const item of state) {
+                if (itemId === item._id) {
+                    item.quantity++;
+                }
+            }
+            localStorage.setItem('cart', JSON.stringify(state));
+        },
+        removeProduct(state, action) {
+            const itemId = action.payload;
+            for (const item of state) {
+                if (itemId === item._id) {
+                    item.quantity--;
+                }
+            }
+            localStorage.setItem('cart', JSON.stringify(state));
+        },
     },
 });
 
-export const { addToCart, removeCart } = cartSlice.actions;
+export const { addToCart, removeCart, setCart, addProduct, removeProduct } =
+    cartSlice.actions;
 
 export default cartSlice.reducer;

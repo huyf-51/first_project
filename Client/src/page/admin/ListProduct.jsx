@@ -9,7 +9,7 @@ import Container from 'react-bootstrap/esm/Container';
 import '../../assets/styles/Checkout.css';
 
 function ListProduct() {
-    const { data, isLoading, isSuccess } = useGetProductsQuery('');
+    const { data, isLoading, isSuccess, refetch } = useGetProductsQuery('');
     const itemsPerPage = 10;
 
     const [itemOffset, setItemOffset] = useState(0);
@@ -35,7 +35,10 @@ function ListProduct() {
         return (
             <>
                 <HeaderListProduct data={data} />
-                <ListProductItem currentItems={currentItems} />
+                <ListProductItem
+                    currentItems={currentItems}
+                    refetch={refetch}
+                />
                 <MyPaginate
                     breakLabel="..."
                     nextLabel="next >"

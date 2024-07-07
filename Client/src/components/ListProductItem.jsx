@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteProductMutation } from '../store/slices/productApiSlice';
 import ProductNotExist from './ProductNotExist';
 
-function ListProductItem({ currentItems }) {
+function ListProductItem({ currentItems, refetch }) {
     const [id, setId] = useState();
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
@@ -29,6 +29,7 @@ function ListProductItem({ currentItems }) {
         try {
             await deleteProduct(id).unwrap();
             setShow(false);
+            refetch();
         } catch (error) {}
     };
 
@@ -45,6 +46,7 @@ function ListProductItem({ currentItems }) {
                             <th>#</th>
                             <th>Product Name</th>
                             <th>Price</th>
+                            <th>In Stock</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -54,6 +56,7 @@ function ListProductItem({ currentItems }) {
                                 <td>{index + 1}</td>
                                 <td>{item.productName}</td>
                                 <td>{item.price}</td>
+                                <td>{item.inStock}</td>
                                 <td>
                                     <Button
                                         variant="primary"

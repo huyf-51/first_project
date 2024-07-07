@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLogoutMutation } from '../../store/slices/userApiSlice';
 import { useDispatch } from 'react-redux';
 import { setLogout } from '../../store/slices/userSlice';
+import { removeCart } from '../../store/slices/cartSlice';
 
 function LogoutButton() {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ function LogoutButton() {
 
     const handleLogout = async () => {
         await logout().unwrap();
+        dispatch(removeCart());
         dispatch(setLogout());
         navigate('/');
     };

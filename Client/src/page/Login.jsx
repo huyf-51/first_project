@@ -3,13 +3,15 @@ import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/esm/Container';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { setCart } from '../store/slices/cartSlice';
 import GoogleLoginButton from '../components/button/GoogleLoginButton';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../store/slices/userApiSlice';
 import { setCredentials } from '../store/slices/userSlice';
+import { useLazyGetCartQuery } from '../store/slices/cartApiSlice';
 
 function Login() {
+    const [getCart] = useLazyGetCartQuery();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [login, { error }] = useLoginMutation();
@@ -29,7 +31,13 @@ function Login() {
         try {
             const data = await login(input).unwrap();
             dispatch(setCredentials(data));
-            navigate('/');
+            try {
+                const cart = await getCart().unwrap();
+                dispatch(setCart(cart));
+            } catch (error) {
+            } finally {
+                navigate('/');
+            }
         } catch (error) {}
     };
     return (

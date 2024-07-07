@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Form from 'react-bootstrap/Form';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
@@ -8,7 +8,7 @@ import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import Image from 'react-bootstrap/Image';
-import totalPrice from '../utils/cartUtils';
+import { totalPrice } from '../utils/cartUtils';
 import Button from 'react-bootstrap/esm/Button';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrderMutation } from '../store/slices/orderApiSlice';
@@ -125,6 +125,7 @@ export default function Checkout() {
                                                 <th>Product</th>
                                                 <th>Title</th>
                                                 <th>Price</th>
+                                                <th>Quantity</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -132,14 +133,20 @@ export default function Checkout() {
                                                 <tr key={index}>
                                                     <td>
                                                         <Image
-                                                            src={cartItem.image}
+                                                            src={
+                                                                cartItem.imageUrl
+                                                            }
                                                             className="w-25"
                                                         />
                                                     </td>
                                                     <td>
                                                         {cartItem.productName}
                                                     </td>
-                                                    <td>{cartItem.price}</td>
+                                                    <td>
+                                                        {cartItem.price *
+                                                            cartItem.quantity}
+                                                    </td>
+                                                    <td>{cartItem.quantity}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

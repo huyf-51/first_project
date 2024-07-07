@@ -58,7 +58,7 @@ function CreateProduct() {
 
     return (
         <>
-            <Container className="mt-5">
+            <Container className="mt-5 mb-5">
                 <Form encType="multipart/form-data">
                     <Form.Group className="mb-3" controlId="productName">
                         <Form.Label>Product Name</Form.Label>

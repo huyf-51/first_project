@@ -7,4 +7,5 @@ export const apiSlice = createApi({
         credentials: 'include',
     }),
     endpoints: () => ({}),
+    keepUnusedDataFor: 5,
 });

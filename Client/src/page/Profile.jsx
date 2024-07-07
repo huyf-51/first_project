@@ -3,7 +3,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import Container from 'react-bootstrap/esm/Container';
 import Image from 'react-bootstrap/Image';
 import Table from 'react-bootstrap/Table';
-import totalPrice from '../utils/cartUtils';
+import totalPrice from '../utils/orderUtils';
 import Button from 'react-bootstrap/esm/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +28,7 @@ const Profile = () => {
                                     <th>Product</th>
                                     <th>Title</th>
                                     <th>Price</th>
+                                    <th>Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -35,12 +36,16 @@ const Profile = () => {
                                     <tr key={index}>
                                         <td>
                                             <Image
-                                                src={cartItem.image}
+                                                src={cartItem.product.imageUrl}
                                                 className="w-25"
                                             />
                                         </td>
-                                        <td>{cartItem.productName}</td>
-                                        <td>{cartItem.price}</td>
+                                        <td>{cartItem.product.productName}</td>
+                                        <td>
+                                            {cartItem.product.price *
+                                                cartItem.quantity}
+                                        </td>
+                                        <td>{cartItem.quantity}</td>
                                     </tr>
                                 ))}
                             </tbody>

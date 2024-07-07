@@ -1,18 +1,33 @@
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
-import { useSelector } from 'react-redux';
 import Image from 'react-bootstrap/Image';
-import totalPrice from '../utils/cartUtils';
+import { totalPrice } from '../utils/cartUtils';
 import Button from 'react-bootstrap/esm/Button';
 import { useNavigate } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
+import { addProduct, removeProduct } from '../store/slices/cartSlice';
+import { useDispatch } from 'react-redux';
+import { useUpdateCartMutation } from '../store/slices/cartApiSlice';
 
 function Cart() {
+    const [updateCart] = useUpdateCartMutation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const cart = useSelector((state) => state.cart);
+
+    const handleAddProduct = async (itemId) => {
+        dispatch(addProduct(itemId));
+        await updateCart({ id: itemId, count: 1 }).unwrap();
+    };
+
+    const handleRemoveProduct = async (itemId) => {
+        dispatch(removeProduct(itemId));
+        await updateCart({ id: itemId, count: -1 }).unwrap();
+    };
 
     return (
         <Container className="my-5">
@@ -56,7 +71,17 @@ function Cart() {
                                     <td>
                                         <Row className="mt-2">
                                             <Col>
-                                                <Button variant="secondary">
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        handleRemoveProduct(
+                                                            cartItem._id
+                                                        );
+                                                    }}
+                                                    disabled={
+                                                        cartItem.quantity === 1
+                                                    }
+                                                >
                                                     <FontAwesomeIcon
                                                         icon={faMinus}
                                                     />
@@ -66,7 +91,18 @@ function Cart() {
                                                 <div>{cartItem.quantity}</div>
                                             </Col>
                                             <Col>
-                                                <Button variant="secondary">
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        handleAddProduct(
+                                                            cartItem._id
+                                                        );
+                                                    }}
+                                                    disabled={
+                                                        cartItem.quantity ===
+                                                        cartItem.inStock
+                                                    }
+                                                >
                                                     <FontAwesomeIcon
                                                         icon={faPlus}
                                                     />

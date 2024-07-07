@@ -31,4 +31,5 @@ export const privateApiSlice = createApi({
     reducerPath: 'privateApi',
     baseQuery: baseQueryConfig,
     endpoints: () => ({}),
+    keepUnusedDataFor: 5,
 });
