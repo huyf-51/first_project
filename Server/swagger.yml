@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+    title: First Project API
+    description: All information about API (route, request, response, authentication, ...)
+    version: 0.0.1
+servers:
+    - url: http://localhost:3001
+      description: Main API server
+tags:
+    - name: user
+    - name: product
+    - name: order
+    - name: message
+    - name: refresh token
+    - name: cart
+paths:
+    /user/login:
+        post:
+            tags:
+                - user
+            requestBody:
+                description: request data for login
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                password:
+                                    type: string
+
+            description: Login to website
+            responses:
+                '200':
+                    description: A JSON object of user info
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties:
+                                            _id:
+                                                type: string
+                                            email:
+                                                type: string
+                                    auth:
+                                        type: object
+                                        properties:
+                                            accessToken:
+                                                type: string
+                                            role:
+                                                type: string
+                '400':
+                    description: Incorrect email or password
+
+    /user/register:
+        post:
+            tags:
+                - user
+            description: Create a user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                password:
+                                    type: string
+                                confirmPassword:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify register success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: the email is exist
+
+    /user/logout:
+        post:
+            tags:
+                - user
+            description: make request logout
+            responses:
+                '204':
+                    description: logout
+
+    /user/forgot-password/send-mail:
+        post:
+            tags:
+                - user
+            description: send email account for reset password
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify send email success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: Account not found
+
+    user/forgot-password/reset/{id}/{token}:
+        put:
+            tags:
+                - user
+            description: Reset password for account
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: integer
+                  required: true
+                  description: userId of account reset password
+                - in: path
+                  name: token
+                  schema:
+                      type: integer
+                  required: true
+                  description: token for verify identity
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                newPassword:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify reset password success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: you dont have permission to reset password
+
+    /user/get-admin-id:
+        get:
+            tags:
+                - user
+            description: Get admin id
+            responses:
+                '200':
+                    description: admin id
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+
+    /user/get-all-user-activate-message/{id}:
+        get:
+            tags:
+                - user
+            description: Get all user activate message to specified user
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: integer
+                  required: true
+                  description: userId of user receive message
+            responses:
+                '200':
+                    description: array of user info
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                        email:
+                                            type: string
+
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 4
+                name:
+                    type: string
+                    example: Arthur Dent
+            required:
+                - id
+                - name

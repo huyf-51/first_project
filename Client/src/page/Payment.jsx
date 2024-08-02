@@ -1,7 +1,7 @@
 import React from 'react';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import {
-    useComfirmPaymentOrderMutation,
+    useConfirmPaymentOrderMutation,
     useCreatePaymentOrderMutation,
     useGetPaypalClientIdQuery,
     useSetPaymentMutation,
@@ -15,7 +15,7 @@ function Payment() {
     const [setPayment] = useSetPaymentMutation();
     const navigate = useNavigate();
     const [createPaymentOrder] = useCreatePaymentOrderMutation();
-    const [comfirmPaymentOrder] = useComfirmPaymentOrderMutation();
+    const [confirmPaymentOrder] = useConfirmPaymentOrderMutation();
     const { data: clientId } = useGetPaypalClientIdQuery();
     const initialOptions = {
         'client-id': clientId,
@@ -35,7 +35,7 @@ function Payment() {
     };
 
     const handleApprove = async (data, actions) => {
-        const orderData = await comfirmPaymentOrder(data.orderID).unwrap();
+        const orderData = await confirmPaymentOrder(data.orderID).unwrap();
 
         const errorDetail = orderData?.details?.[0];
 
@@ -64,7 +64,7 @@ function Payment() {
                     />
                 </PayPalScriptProvider>
             )}
-            <Button variant="primary" onClick={() => navigate('/user/profile')}>
+            <Button variant="primary" onClick={() => navigate('/')}>
                 Pay later
             </Button>
         </Container>

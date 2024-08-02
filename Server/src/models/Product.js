@@ -27,4 +27,8 @@ const Product = new mongoose.Schema({
     },
 });
 
+Product.post('save', (doc) => {
+    console.log('Product with id: %s has been saved', doc._id);
+});
+
 module.exports = mongoose.model('Product', Product);

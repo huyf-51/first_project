@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import { useNavigate } from 'react-router-dom';
 import SearchInput from './SearchInput';
 import CartButton from './button/CartButton';
-import ManageProduct from './button/ManageButton';
+import Management from './button/ManageButton';
 
 import LogoutButton from './button/LogoutButton';
 import AccountButton from './button/AccoutButton';
@@ -12,6 +12,8 @@ import Button from 'react-bootstrap/esm/Button';
 import ProfileButton from './button/ProfileButton';
 import Row from 'react-bootstrap/esm/Row';
 import Col from 'react-bootstrap/esm/Col';
+import UserChatButton from './button/UserChatButton';
+import AdminChatButton from './button/AdminChatButton';
 
 function Header() {
     const auth = JSON.parse(localStorage.getItem('auth'));
@@ -46,9 +48,11 @@ function Header() {
                                     <AccountButton />
                                 </>
                             )}
-                            {auth?.role === 'admin' && <ManageProduct />}
+                            {auth?.role === 'admin' && <Management />}
                             <SearchInput />
                             <CartButton />
+                            {auth?.role === 'user' && <UserChatButton />}
+                            {auth?.role === 'admin' && <AdminChatButton />}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

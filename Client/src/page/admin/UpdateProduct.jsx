@@ -1,13 +1,11 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/esm/Container';
-import Image from 'react-bootstrap/Image';
-import Row from 'react-bootstrap/esm/Row';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    useFindProductByIdQuery,
     useUpdateProductMutation,
+    useGetProductByIdQuery,
 } from '../../store/slices/productApiSlice';
 import ProductNotExist from '../../components/ProductNotExist';
 
@@ -24,10 +22,10 @@ function UpdateProduct() {
             return { ...preProduct, [e.target.id]: e.target.value };
         });
     };
-    const { data, isError } = useFindProductByIdQuery(id);
+    const { data, isError } = useGetProductByIdQuery(id);
     useEffect(() => {
         setProduct((preproduct) => {
-            return { ...preproduct, ...data };
+            return { ...preproduct, ...data?.product };
         });
     }, [data]);
     const [updateProduct, resultUpdate] = useUpdateProductMutation();

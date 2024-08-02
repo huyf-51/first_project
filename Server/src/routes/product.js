@@ -14,12 +14,6 @@ router.post(
 );
 router.get('/list', catchAsync(productController.list));
 router.get('/get-product/:id', catchAsync(productController.getProductById));
-router.get(
-    '/edit/:id',
-    verifyToken,
-    verifyRole('admin'),
-    catchAsync(productController.edit)
-);
 router.patch(
     '/update/:id',
     verifyToken,
@@ -31,18 +25,6 @@ router.delete(
     verifyToken,
     verifyRole('admin'),
     catchAsync(productController.delete)
-);
-router.get(
-    '/sortByPrice',
-    verifyToken,
-    verifyRole('admin'),
-    catchAsync(productController.sortByPrice)
-);
-router.post(
-    '/import',
-    verifyToken,
-    verifyRole('admin'),
-    catchAsync(productController.importProduct)
 );
 
 module.exports = router;

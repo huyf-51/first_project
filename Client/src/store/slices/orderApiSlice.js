@@ -18,19 +18,37 @@ const orderPrivateApi = privateApiSlice.injectEndpoints({
                 method: 'POST',
             }),
         }),
-        comfirmPaymentOrder: builder.mutation({
+        confirmPaymentOrder: builder.mutation({
             query: (orderID) => ({
                 url: `order/confirm-payment-order/${orderID}`,
                 method: 'POST',
             }),
         }),
+        getAllUserOrder: builder.query({
+            query: () => 'order/get-all-user-order',
+        }),
         getAllOrder: builder.query({
             query: () => 'order/get-all-order',
+        }),
+        getOrderById: builder.query({
+            query: (id) => `order/get-order-by-id/${id}`,
         }),
         setPayment: builder.mutation({
             query: (orderID) => ({
                 url: `order/set-payment/${orderID}`,
                 method: 'POST',
+            }),
+        }),
+        confirmOrder: builder.mutation({
+            query: (orderID) => ({
+                url: `order/confirm-order/${orderID}`,
+                method: 'POST',
+            }),
+        }),
+        deleteOrder: builder.mutation({
+            query: (orderID) => ({
+                url: `order/delete-order/${orderID}`,
+                method: 'DELETE',
             }),
         }),
     }),
@@ -40,7 +58,11 @@ export const {
     useCreateOrderMutation,
     useGetPaypalClientIdQuery,
     useCreatePaymentOrderMutation,
-    useComfirmPaymentOrderMutation,
-    useGetAllOrderQuery,
+    useConfirmPaymentOrderMutation,
     useSetPaymentMutation,
+    useGetAllUserOrderQuery,
+    useGetAllOrderQuery,
+    useGetOrderByIdQuery,
+    useConfirmOrderMutation,
+    useDeleteOrderMutation,
 } = orderPrivateApi;

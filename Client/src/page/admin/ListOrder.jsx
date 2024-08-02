@@ -1,14 +1,13 @@
 import MyPaginate from '../../assets/styles/pagination';
-import ListProductItem from '../../components/ListProductItem';
-import { useGetProductsQuery } from '../../store/slices/productApiSlice';
-import ProductNotFound from '../../components/ProductNotFound';
+import { useGetAllOrderQuery } from '../../store/slices/orderApiSlice';
 import { useState } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import Container from 'react-bootstrap/esm/Container';
 import '../../assets/styles/Checkout.css';
+import ListOrderItem from '../../components/ListOrderItem';
 
-function ListProduct() {
-    const { data, isLoading, isSuccess, refetch } = useGetProductsQuery('');
+function ListOrder() {
+    const { data, isLoading, isSuccess, refetch } = useGetAllOrderQuery();
     const itemsPerPage = 10;
 
     const [itemOffset, setItemOffset] = useState(0);
@@ -24,18 +23,11 @@ function ListProduct() {
 
     if (isSuccess) {
         if (data.length === 0) {
-            return (
-                <>
-                    <ProductNotFound />
-                </>
-            );
+            return <>Dont have any order</>;
         }
         return (
             <>
-                <ListProductItem
-                    currentItems={currentItems}
-                    refetch={refetch}
-                />
+                <ListOrderItem currentItems={currentItems} refetch={refetch} />
                 <MyPaginate
                     breakLabel="..."
                     nextLabel="next >"
@@ -58,4 +50,4 @@ function ListProduct() {
     }
 }
 
-export default ListProduct;
+export default ListOrder;

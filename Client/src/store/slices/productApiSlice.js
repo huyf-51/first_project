@@ -10,11 +10,6 @@ const productPrivateApi = privateApiSlice.injectEndpoints({
                 body: product,
             }),
         }),
-        findProductById: builder.query({
-            query: (id) => ({
-                url: `product/edit/${id}`,
-            }),
-        }),
         updateProduct: builder.mutation({
             query: ({ id, product }) => ({
                 url: `product/update/${id}`,
@@ -26,16 +21,6 @@ const productPrivateApi = privateApiSlice.injectEndpoints({
             query: (id) => ({
                 url: `product/delete/${id}`,
                 method: 'DELETE',
-            }),
-        }),
-        searchProduct: builder.query({
-            query: (keyword) => `product/search?keyword=${keyword}`,
-        }),
-        importProducts: builder.mutation({
-            query: (products) => ({
-                url: 'product/import',
-                method: 'POST',
-                body: products,
             }),
         }),
     }),
@@ -54,11 +39,8 @@ const productApi = apiSlice.injectEndpoints({
 
 export const {
     useCreateProductMutation,
-    useFindProductByIdQuery,
     useUpdateProductMutation,
     useDeleteProductMutation,
-    useSearchProductQuery,
-    useImportProductsMutation,
 } = productPrivateApi;
 
 export const { useGetProductsQuery, useGetProductByIdQuery } = productApi;

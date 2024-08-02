@@ -5,6 +5,8 @@ const nodemailer = require('nodemailer');
 const AppError = require('../utils/AppError');
 const { url, oauth2Client } = require('../config/googleOauth2');
 const axios = require('axios');
+const _ = require('lodash');
+const Message = require('../models/Message');
 
 class UserController {
     async login(req, res, next) {
@@ -209,6 +211,32 @@ class UserController {
                     otherInfo
                 )}&auth=${JSON.stringify(auth)}`
             );
+    }
+
+    async getAdminId(req, res) {
+        const { _id } = await User.findOne({ role: 'admin' });
+        res.json(_id);
+    }
+
+    async getAllUserActivateMessage(req, res) {
+        const { id } = req.params;
+        const userIds = (await Message.find({ to: id })).map((msg) =>
+            msg.from.toString()
+        );
+        let allUserInfo = [];
+        (await User.find({ role: 'user' })).map((userInfo) => {
+            const user = _.omit(userInfo.toObject(), [
+                'password',
+                'refreshToken',
+                'role',
+                'googleId',
+            ]);
+            if (userIds.includes(user._id.toString())) {
+                allUserInfo.push(user);
+            }
+        });
+
+        res.json(allUserInfo);
     }
 }
 

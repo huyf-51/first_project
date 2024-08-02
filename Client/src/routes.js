@@ -6,7 +6,7 @@ import Layout from './page/Layout';
 import Home from './page/Home';
 import RequireAuth from './components/RequireAuth';
 import Cart from './page/Cart';
-import NavbarProduct from './page/admin/NavbarProduct';
+import AdminNavbar from './page/admin/AdminNavbar';
 import ListProduct from './page/admin/ListProduct';
 import CreateProduct from './page/admin/CreateProduct';
 import UpdateProduct from './page/admin/UpdateProduct';
@@ -21,6 +21,12 @@ import PaymentSuccess from './page/PaymentSuccess';
 import Payment from './page/Payment';
 import Profile from './page/Profile';
 import ResetPasswordExpired from './page/ResetPasswordExpired';
+import UserLayout from './page/UserLayout';
+import UserOrders from './page/UserOrders';
+import ListOrder from './page/admin/ListOrder';
+import DetailOrder from './page/admin/DetailOrder';
+import UserChat from './page/UserChat';
+import AdminChat from './page/admin/AdminChat';
 
 const routes = createBrowserRouter([
     {
@@ -78,9 +84,33 @@ const routes = createBrowserRouter([
                         path: '/payment/:id',
                         element: <Payment />,
                     },
+                ],
+            },
+        ],
+    },
+    {
+        element: <RequireAuth allowedRole={['user']} />,
+        children: [
+            {
+                path: 'user/chat',
+                element: <UserChat />,
+            },
+        ],
+    },
+    {
+        path: '/',
+        element: <UserLayout />,
+        children: [
+            {
+                element: <RequireAuth allowedRole={['admin', 'user']} />,
+                children: [
                     {
                         path: 'user/profile',
                         element: <Profile />,
+                    },
+                    {
+                        path: 'user/orders',
+                        element: <UserOrders />,
                     },
                 ],
             },
@@ -91,7 +121,7 @@ const routes = createBrowserRouter([
         children: [
             {
                 path: 'product',
-                element: <NavbarProduct />,
+                element: <AdminNavbar />,
                 children: [
                     {
                         path: 'list',
@@ -106,6 +136,24 @@ const routes = createBrowserRouter([
                         element: <UpdateProduct />,
                     },
                 ],
+            },
+            {
+                path: '/',
+                element: <AdminNavbar />,
+                children: [
+                    {
+                        path: 'order/list',
+                        element: <ListOrder />,
+                    },
+                    {
+                        path: 'order/detail/:id',
+                        element: <DetailOrder />,
+                    },
+                ],
+            },
+            {
+                path: '/admin/chat',
+                element: <AdminChat />,
             },
         ],
     },

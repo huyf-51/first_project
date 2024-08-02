@@ -1,24 +1,24 @@
 import Button from 'react-bootstrap/esm/Button';
 import { useNavigate } from 'react-router-dom';
 
-function Management() {
+function UserChatButton() {
     const navigate = useNavigate();
 
-    const navigateProduct = () => {
-        navigate('/product/list');
+    const navigateUserChat = () => {
+        navigate('/user/chat');
     };
 
     return (
         <>
             <Button
                 variant="light"
-                className="nav-link"
-                onClick={navigateProduct}
+                className="nav-link ms-2"
+                onClick={navigateUserChat}
             >
-                Management
+                Chat with Shop
             </Button>
         </>
     );
 }
 
-export default Management;
+export default UserChatButton;

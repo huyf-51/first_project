@@ -48,14 +48,6 @@ class ProductController {
         }
     }
 
-    async edit(req, res, next) {
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            next(new AppError('No product for that id', 404));
-        }
-        res.status(200).json(product);
-    }
-
     async update(req, res, next) {
         const updatedProduct = await Product.updateOne(
             { _id: req.params.id },
@@ -78,16 +70,6 @@ class ProductController {
         }
         await cloudinary.uploader.destroy(imageId);
         res.status(200).json({ status: 'success' });
-    }
-    async sortByPrice(req, res) {
-        const allProduct = await Product.find();
-        res.status(200).json(allProduct.sort((a, b) => a.price - b.price));
-    }
-
-    async importProduct(req, res) {
-        const insertProduct = await Product.insertMany(req.body);
-        const allProducts = await Product.find();
-        res.status(200).json(allProducts);
     }
 }
 

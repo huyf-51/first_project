@@ -1,4 +1,5 @@
 import { apiSlice } from './apiSlice';
+import { privateApiSlice } from './privateApiSlice';
 
 const userApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
@@ -44,6 +45,21 @@ const userApi = apiSlice.injectEndpoints({
     }),
 });
 
+const userPrivateApi = privateApiSlice.injectEndpoints({
+    endpoints: (builder) => ({
+        getAdminId: builder.query({
+            query: () => ({
+                url: `user/get-admin-id`,
+            }),
+        }),
+        getAllUserActivateMessage: builder.query({
+            query: (data) => ({
+                url: `user/get-all-user-activate-message/${data}`,
+            }),
+        }),
+    }),
+});
+
 export const {
     useLoginMutation,
     useLogoutMutation,
@@ -52,3 +68,6 @@ export const {
     useResetPasswordMutation,
     useGetGoogleAuthUrlQuery,
 } = userApi;
+
+export const { useGetAdminIdQuery, useGetAllUserActivateMessageQuery } =
+    userPrivateApi;

@@ -33,13 +33,26 @@ class OrderController {
         res.json('create order success');
     }
 
-    async getAllOrder(req, res) {
+    async getAllUserOrder(req, res) {
         const userId = req.userId;
         const orders = await Order.find({ userId })
             .populate('orderItems.product')
             .exec();
 
         res.json(orders);
+    }
+
+    async getOrderById(req, res) {
+        const orderId = req.params.id;
+        const order = await Order.findById({ _id: orderId }).populate(
+            'orderItems.product'
+        );
+        res.json(order);
+    }
+
+    async getAllOrder(req, res) {
+        const allOrders = await Order.find();
+        res.json(allOrders);
     }
 
     async setPayment(req, res) {
@@ -75,7 +88,27 @@ class OrderController {
         }
     }
 
-    async comfirmPaymentOrder(req, res, next) {
+    async confirmOrder(req, res) {
+        const orderId = req.params.id;
+        const order = await Order.findById({ _id: orderId });
+        order.isConfirmed = true;
+        await order.save();
+        res.json('success');
+    }
+
+    async deleteOrder(req, res) {
+        const orderId = req.params.id;
+        const order = await Order.findById({ _id: orderId });
+        await Order.deleteOne({ _id: orderId });
+        for (const orderItem of order.orderItems) {
+            const product = await Product.findById({ _id: orderItem.product });
+            product.inStock += orderItem.quantity;
+            await product.save();
+        }
+        res.json('success');
+    }
+
+    async confirmPaymentOrder(req, res, next) {
         try {
             const { orderID } = req.params;
             const { jsonResponse, httpStatusCode } =

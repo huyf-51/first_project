@@ -1,19 +1,26 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = 3001;
 const cors = require('cors');
-const { connectDB } = require('./config/db');
 const cookieParser = require('cookie-parser');
-const route = require('../src/routes/index');
+const route = require('./routes/index');
 const globalErrorHandler = require('./controllers/ErrorController');
 const AppError = require('./utils/AppError');
 const morgan = require('morgan');
-const { connectRedis } = require('../src/config/redis');
+const helmet = require('helmet');
+const { rateLimit } = require('express-rate-limit');
+const setDoc = require('../src/document/swagger');
 
-app.use(cookieParser());
+app.use(helmet());
+app.use(
+    rateLimit({
+        windowMs: 5 * 60 * 1000,
+        limit: 10000,
+        message: 'Too many request from this IP, please try again in an hour',
+    })
+);
 
 app.use(morgan('dev'));
+app.use(cookieParser());
 app.use(
     cors({
         origin: ['http://localhost:3000', 'http://localhost:3002'],
@@ -24,15 +31,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: 400000000 }));
 
-connectRedis();
-connectDB();
-
+setDoc(app);
 route(app);
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Api Endpoint ${req.originalUrl} not found`, 404));
 });
 app.use(globalErrorHandler);
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+
+module.exports = app;

@@ -18,4 +18,8 @@ const User = new mongoose.Schema({
     googleId: String,
 });
 
+User.post('save', (doc) => {
+    console.log('User with id: %s has been saved', doc._id);
+});
+
 module.exports = mongoose.model('User', User);
