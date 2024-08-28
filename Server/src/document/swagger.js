@@ -7,6 +7,7 @@ const file = fs.readFileSync(path.join(__dirname, '../../swagger.yml'), 'utf8');
 const swaggerDocument = YAML.parse(file);
 
 var options = {
+    explorer: true,
     swaggerOptions: {
         url: '/api-docs/swagger.json',
     },

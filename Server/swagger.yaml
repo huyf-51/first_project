@@ -1,0 +1,777 @@
+openapi: 3.0.0
+
+info:
+    title: First Project API
+    description: All information about API (route, request, response, authentication, ...)
+    version: 0.0.1
+
+servers:
+    - url: http://localhost:3001
+      description: Main API server
+
+tags:
+    - name: user
+    - name: product
+    - name: order
+    - name: message
+    - name: refreshToken
+    - name: cart
+
+paths:
+    /user/login:
+        post:
+            tags:
+                - user
+            requestBody:
+                description: request data for login
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                password:
+                                    type: string
+
+            description: Login to website
+            responses:
+                '200':
+                    $ref: '#components/responses/resUserData'
+                '400':
+                    description: Incorrect email or password
+
+    /user/register:
+        post:
+            tags:
+                - user
+            description: Create a user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                password:
+                                    type: string
+                                confirmPassword:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify register success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: the email is exist
+
+    /user/logout:
+        post:
+            tags:
+                - user
+            description: make request logout
+            responses:
+                '204':
+                    description: logout
+
+    /user/forgot-password/send-mail:
+        post:
+            tags:
+                - user
+            description: send email account for reset password
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify send email success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: Account not found
+
+    user/forgot-password/reset/{id}/{token}:
+        put:
+            tags:
+                - user
+            description: Reset password for account
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: string
+                  required: true
+                  description: userId of account reset password
+                - in: path
+                  name: token
+                  schema:
+                      type: number
+                  required: true
+                  description: token for verify identity
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                newPassword:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify reset password success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '500':
+                    description: you dont have permission to reset password
+
+    /user/get-admin-id:
+        get:
+            tags:
+                - user
+            description: Get admin id
+            security:
+                - accessToken: []
+            responses:
+                '200':
+                    description: admin id
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+
+    /user/get-all-user-activate-message/{id}:
+        get:
+            tags:
+                - user
+            description: Get all user activate message to specified user
+            security:
+                - accessToken: []
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: number
+                  required: true
+                  description: userId of user receive message
+            responses:
+                '200':
+                    description: array of user info
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                        email:
+                                            type: string
+
+    /product/create:
+        post:
+            tags:
+                - product
+            description: create a product
+            security:
+                - accessToken: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                productName:
+                                    type: string
+                                imageUrl:
+                                    type: string
+                                price:
+                                    type: number
+                                quantity:
+                                    type: number
+                                category:
+                                    type: string
+            responses:
+                '200':
+                    description: A JSON object notify create product success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+
+    /product/list:
+        get:
+            tags:
+                - product
+            description: get all product by keyword parameter
+            parameters:
+                - in: query
+                  name: keyword
+                  schema:
+                      type: string
+                  required: true
+                  description: keyword of the product the user enter
+            responses:
+                '200':
+                    description: array of product if find out
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                        imageUrl:
+                                            type: string
+                                        price:
+                                            type: number
+                                        productName:
+                                            type: string
+                                        imageId:
+                                            type: string
+                                        inStock:
+                                            type: number
+                                        category:
+                                            type: string
+
+    /product/get-product/{id}:
+        get:
+            tags:
+                - product
+            description: get a product by product id
+            parameters:
+                - $ref: '#/components/parameters/productId'
+            responses:
+                '200':
+                    description: a product of specified id
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    product:
+                                        $ref: '#/components/schemas/Product'
+                '404':
+                    description: No product for that id
+
+    /product/update/{id}:
+        patch:
+            tags:
+                - product
+            description: update product
+            security:
+                - accessToken: []
+            parameters:
+                - $ref: '#/components/parameters/productId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                productName:
+                                    type: string
+                                price:
+                                    type: number
+                                inStock:
+                                    type: number
+            responses:
+                '200':
+                    description: A JSON object notify update product success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '404':
+                    description: 'No product for that id'
+
+    /product/delete/{id}:
+        delete:
+            tags:
+                - product
+            description: delete product by specified id
+            security:
+                - accessToken: []
+            parameters:
+                - $ref: '#/components/parameters/productId'
+            responses:
+                '200':
+                    description: A JSON object notify delete product success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                '404':
+                    description: 'No product for that id'
+
+    /order/create-order:
+        post:
+            tags:
+                - order
+            description: user create order
+            security:
+                - accessToken: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                fullName:
+                                    type: string
+                                shippingAddress:
+                                    type: string
+                                phoneNumber:
+                                    type: number
+                                totalPrice:
+                                    type: number
+                                orderItems:
+                                    type: array
+                                    items:
+                                        $ref: '#/components/schemas/cartItem'
+            responses:
+                '200':
+                    description: string notify create order success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: 'create order success'
+    /order/get-paypal-client-id:
+        get:
+            tags:
+                - order
+            description: get paypal client id to set layout payment
+            security:
+                - accessToken: []
+            responses:
+                '200':
+                    description: the paypal client id
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: 'fw4t4wgt5e55fw4f4w'
+
+    /order/confirm-order/{id}:
+        post:
+            tags:
+                - order
+            description: admin confirm of order
+            security:
+                - accessToken: []
+            parameters:
+                - $ref: '#/components/parameters/orderId'
+            responses:
+                '200':
+                    description: a string notify confirm order success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: success
+
+    /order/get-all-user-order:
+        get:
+            tags:
+                - order
+            description: get all order of user
+            security:
+                - accessToken: []
+            responses:
+                '200':
+                    description: a array of detail order of user
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Order'
+
+    /order/get-order-by-id/{id}:
+        get:
+            tags:
+                - order
+            description: get a order by orderId
+            security:
+                - accessToken: []
+            parameters:
+                - $ref: '#/components/parameters/orderId'
+            responses:
+                '200':
+                    description: a object of order
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Order'
+
+    /order/get-all-order:
+        get:
+            tags:
+                - order
+            description: get all order in database
+            security:
+                - accessToken: []
+            responses:
+                '200':
+                    description: a array of all order in database
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Order'
+
+    /order/set-payment/{orderId}:
+        get:
+            tags:
+                - order
+            description: set payment of order to true by order id
+            security:
+                - accessToken: []
+            parameters:
+                - in: path
+                  name: orderId
+                  schema:
+                      type: string
+                  required: true
+                  description: order id
+            responses:
+                '200':
+                    description: a string notify set payment success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                '500':
+                    description: order not found
+
+    /order/delete-order/{id}:
+        delete:
+            tags:
+                - order
+            description: delete order by order id
+            security:
+                - accessToken: []
+            parameters:
+                - $ref: '#/components/parameters/orderId'
+            responses:
+                '200':
+                    description: a string notify delete order success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+
+    /message/get-message/{from}/{to}:
+        get:
+            tags:
+                - message
+            description: get all message sent from user to another user
+            security:
+                - accessToken: []
+            parameters:
+                - in: path
+                  name: from
+                  schema:
+                      type: string
+                  required: true
+                  description: user id of user send message
+                - in: path
+                  name: from
+                  schema:
+                      type: string
+                  required: true
+                  description: user id of user receive message
+            responses:
+                '200':
+                    description: a array of message
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                        from:
+                                            type: string
+                                        to:
+                                            type: string
+                                        content:
+                                            type: string
+                                        createdAt:
+                                            type: string
+                                        updatedAt:
+                                            type: string
+
+    /message/set-message:
+        post:
+            tags:
+                - message
+            description: store message in db
+            security:
+                - accessToken: []
+            requestBody:
+                description: request data for store message
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                from:
+                                    type: string
+                                to:
+                                    type: string
+                                content:
+                                    type: string
+            responses:
+                '200':
+                    description: string notify set message success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+
+    /refresh:
+        get:
+            tags:
+                - refreshToken
+            description: refresh token for token expired
+            responses:
+                '200':
+                    $ref: '#components/responses/resUserData'
+                '401':
+                    description: not authorization
+                '403':
+                    description: verify token failed
+
+    /cart/add-to-cart:
+        post:
+            tags:
+                - cart
+            description: add product to cart
+            security:
+                - accessToken: []
+            requestBody:
+                description: a product detail to add to cart
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/cartItem'
+            responses:
+                '200':
+                    description: a string notify add to cart success
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+
+    /cart/get-cart:
+        get:
+            tags:
+                - cart
+            description: get cart by user id
+            security:
+                - accessToken: []
+            responses:
+                '200':
+                    description: a array of user cart
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/cartItem'
+                '500':
+                    description: cannot get cart of this user
+
+    /cart/update-cart:
+        post:
+            tags:
+                - cart
+            description: update quantity of cart item
+            security:
+                - accessToken: []
+            requestBody:
+                description: info of cart item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                id:
+                                    type: string
+                                count:
+                                    type: number
+            responses:
+                '200':
+                    description: a string notify update cart success
+
+components:
+    schemas:
+        Product:
+            type: object
+            properties:
+                _id:
+                    type: string
+                imageUrl:
+                    type: string
+                price:
+                    type: number
+                productName:
+                    type: string
+                imageId:
+                    type: string
+                inStock:
+                    type: number
+                category:
+                    type: string
+        Order:
+            type: object
+            properties:
+                _id:
+                    type: string
+                userId:
+                    type: string
+                orderItems:
+                    type: object
+                    properties:
+                        product:
+                            type: object
+                            properties:
+                                _id:
+                                    type: string
+                                imageUrl:
+                                    type: string
+                                price:
+                                    type: number
+                                productName:
+                                    type: string
+                                imageId:
+                                    type: string
+                                inStock:
+                                    type: number
+                                category:
+                                    type: string
+                        quantity:
+                            type: number
+                shippingAddress:
+                    type: string
+                fullName:
+                    type: string
+                phoneNumber:
+                    type: number
+                totalPrice:
+                    type: number
+                isPayed:
+                    type: boolean
+        cartItem:
+            type: object
+            properties:
+                _id:
+                    type: string
+                imageUrl:
+                    type: string
+                price:
+                    type: number
+                productName:
+                    type: string
+                imageId:
+                    type: string
+                inStock:
+                    type: number
+                category:
+                    type: string
+                quantity:
+                    type: number
+    parameters:
+        productId:
+            in: path
+            name: id
+            schema:
+                type: string
+            required: true
+            description: id of product
+        orderId:
+            in: path
+            name: id
+            schema:
+                type: string
+            required: true
+            description: order id
+    responses:
+        resUserData:
+            description: A JSON object of user info
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            data:
+                                type: object
+                                properties:
+                                    _id:
+                                        type: string
+                                    email:
+                                        type: string
+                            auth:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                                    role:
+                                        type: string
+            headers:
+                Set-Cookie:
+                    description: set refreshToken in response header
+                    schema:
+                        type: string
+    securitySchemes:
+        accessToken:
+            type: apiKey
+            in: header
+            name: Authorization
