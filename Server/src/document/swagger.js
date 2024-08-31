@@ -3,7 +3,10 @@ const fs = require('fs');
 const YAML = require('yaml');
 const path = require('path');
 
-const file = fs.readFileSync(path.join(__dirname, '../../swagger.yml'), 'utf8');
+const file = fs.readFileSync(
+    path.join(__dirname, '../../swagger.yaml'),
+    'utf8'
+);
 const swaggerDocument = YAML.parse(file);
 
 var options = {
