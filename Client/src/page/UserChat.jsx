@@ -19,17 +19,15 @@ const UserChat = () => {
     const { data: adminId, isSuccess } = useGetAdminIdQuery();
     const message = useGetMessageQuery({ from: userData?._id, to: adminId });
     useEffect(() => {
-        socket.connect();
-        socket.emit('add user', userData?._id);
         socket.on('receive message', (msg) => {
             setMessages((pre) => [...pre, msg]);
         });
-        socket.on('disconnect', (reason, details) => {
-            socket.emit('add user', userData?._id);
+        socket.on('connect_error', (error) => {
+            console.log('socket error>>>', error);
         });
-        return () => {
-            socket.disconnect();
-        };
+        socket.on('disconnect', (reason, details) => {
+            console.log(reason);
+        });
     }, []);
 
     useEffect(() => {
@@ -81,10 +79,10 @@ const UserChat = () => {
                 </ListGroup>
             )}
             <Form className="mx-auto d-flex mt-3">
-                <Form.Group className="mb-3" controlId="email">
+                <Form.Group className="mb-3" controlId="input">
                     <Form.Control
-                        type="email"
-                        placeholder="Enter email"
+                        type="input"
+                        placeholder="Enter"
                         onChange={handleInput}
                         required
                         value={input}

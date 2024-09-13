@@ -1,11 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
+const fs = require('fs-extra');
+const path = require('path');
 
 const verifyToken = (req, res, next) => {
-    console.log('header>>>', req.headers.authorization);
+    const publicKey = fs.readFileSync(
+        path.join(__dirname, '../../keys/ec-public-key.pem'),
+        'utf-8'
+    );
     const token = req.headers.authorization;
-    jwt.verify(token, process.env.accessToken, async (error, decoded) => {
+    jwt.verify(token, publicKey, async (error, decoded) => {
         if (error) {
             return next(new AppError('you dont have permission', 403));
         }

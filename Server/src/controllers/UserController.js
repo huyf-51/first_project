@@ -7,6 +7,9 @@ const { url, oauth2Client } = require('../config/googleOauth2');
 const axios = require('axios');
 const _ = require('lodash');
 const Message = require('../models/Message');
+const { v4: uuidv4 } = require('uuid');
+const { client } = require('../config/redis');
+const genToken = require('../utils/genToken');
 
 class UserController {
     async login(req, res, next) {
@@ -24,29 +27,31 @@ class UserController {
                     );
                 }
 
-                const accessToken = jwt.sign(
-                    { id: user._id },
-                    process.env.accessToken,
-                    { expiresIn: '10m' }
-                );
+                const [accessToken, newRefreshToken] = genToken({
+                    id: user._id,
+                });
 
-                const newRefreshToken = jwt.sign(
-                    { id: user._id },
-                    process.env.refreshToken,
-                    { expiresIn: '1d' }
-                );
-
-                user.refreshToken = newRefreshToken;
+                user.refreshToken.push(newRefreshToken);
                 const newUser = await user.save();
                 const { password, refreshToken, role, ...otherInfo } =
                     newUser._doc;
+
+                const sessionId = uuidv4();
+                await client.hSet(`session:${sessionId}`, {
+                    userId: newUser._id.toString(),
+                    connected: 'false',
+                });
+                await client.expire(`session:${sessionId}`, 24 * 3600);
+
                 res.status(200)
                     .cookie('refreshToken', newRefreshToken, {
                         httpOnly: true,
+                        maxAge: 3600 * 24 * 1000,
                     })
                     .json({
                         data: otherInfo,
                         auth: { accessToken, role },
+                        sessionId: `session:${sessionId}`,
                     });
             }
         );
@@ -60,10 +65,11 @@ class UserController {
         const hash = await bcrypt.hash(password, 10);
         const newUser = new User({ email, password: hash });
         const user = await newUser.save();
+
         res.status(200).json({ status: 'success' });
     }
 
-    async logout(req, res) {
+    async logout(req, res, next) {
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) {
             return res.sendStatus(204);
@@ -73,17 +79,23 @@ class UserController {
 
         if (!foundUser) {
             return res
-                .sendStatus(204)
-                .clearCookie('refreshToken', refreshToken, {
+                .clearCookie('refreshToken', {
                     httpOnly: true,
-                });
+                })
+                .json('logout');
         }
 
-        foundUser.refreshToken = '';
-        const user = await foundUser.save();
-        res.clearCookie('refreshToken', refreshToken, {
+        foundUser.refreshToken = foundUser.refreshToken.filter(
+            (item) => item !== refreshToken
+        );
+        await foundUser.save();
+        const activeUser = await client.exists(req.headers.sessionid);
+        if (activeUser) {
+            await client.del(req.headers.sessionid);
+        }
+        res.clearCookie('refreshToken', {
             httpOnly: true,
-        }).sendStatus(204);
+        }).json('logout');
     }
 
     async sendEmail(req, res, next) {
@@ -183,33 +195,35 @@ class UserController {
             user = new User({ googleId: sub, email, password });
             await user.save();
         }
-        const accessToken = jwt.sign(
-            { id: user._id },
-            process.env.accessToken,
-            { expiresIn: '10m' }
-        );
 
-        const newRefreshToken = jwt.sign(
-            { id: user._id },
-            process.env.refreshToken,
-            { expiresIn: '1d' }
-        );
+        const [accessToken, newRefreshToken] = genToken({
+            id: user._id,
+        });
 
-        user.refreshToken = newRefreshToken;
+        user.refreshToken.push(newRefreshToken);
         await user.save();
 
         const { password, refreshToken, role, ...otherInfo } = user._doc;
         const auth = { accessToken, role };
+
+        const sessionId = uuidv4();
+        await client.hSet(`session:${sessionId}`, {
+            userId: user._id.toString(),
+            connected: 'false',
+        });
+        await client.expire(`session:${sessionId}`, 24 * 3600);
+
         res.status(200)
             .cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
+                maxAge: 3600 * 24 * 1000,
             })
             .redirect(
                 `${
                     process.env.CLIENT_URL
                 }/google/auth/callback?data=${JSON.stringify(
                     otherInfo
-                )}&auth=${JSON.stringify(auth)}`
+                )}&auth=${JSON.stringify(auth)}&sessionId=session:${sessionId}`
             );
     }
 

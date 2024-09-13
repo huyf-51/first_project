@@ -70,7 +70,7 @@ function Login() {
                 </Button>
                 {error && (
                     <Form.Group>
-                        <Form.Text>{error.data.message}</Form.Text>
+                        <Form.Text>{error.data?.message}</Form.Text>
                     </Form.Group>
                 )}
                 <Form.Group className="mt-2 mb-2">

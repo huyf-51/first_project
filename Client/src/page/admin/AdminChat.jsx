@@ -26,20 +26,18 @@ const AdminChat = () => {
     );
     const message = useGetMessageQuery({ from: userData?._id, to: userId });
     useEffect(() => {
-        socket.connect();
-        socket.emit('add user', userData._id);
         socket.on('receive message', (msg, newUser) => {
             setMsg(msg);
             if (newUser && newUser._id !== userData._id) {
                 setListUser((pre) => [...pre, newUser]);
             }
         });
-        socket.on('disconnect', (reason, details) => {
-            socket.emit('add user', userData?._id);
+        socket.on('connect_error', (error) => {
+            console.log('socket error>>>', error);
         });
-        return () => {
-            socket.disconnect();
-        };
+        socket.on('disconnect', (reason, details) => {
+            console.log(reason);
+        });
     }, []);
 
     useEffect(() => {
@@ -93,7 +91,7 @@ const AdminChat = () => {
                         {listUser?.length >= 1 &&
                             listUser.map((user, index) => {
                                 return (
-                                    <>
+                                    <div key={index}>
                                         <Button
                                             variant="primary"
                                             onClick={() => {
@@ -105,7 +103,7 @@ const AdminChat = () => {
                                             {user?.email}
                                         </Button>
                                         <br />
-                                    </>
+                                    </div>
                                 );
                             })}
                     </Col>

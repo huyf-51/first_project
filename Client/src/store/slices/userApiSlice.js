@@ -42,6 +42,11 @@ const userApi = apiSlice.injectEndpoints({
                 url: `user/auth/google`,
             }),
         }),
+        refreshToken: builder.query({
+            query: () => ({
+                url: 'refresh',
+            }),
+        }),
     }),
 });
 
@@ -67,6 +72,7 @@ export const {
     useSendMailMutation,
     useResetPasswordMutation,
     useGetGoogleAuthUrlQuery,
+    useLazyRefreshTokenQuery,
 } = userApi;
 
 export const { useGetAdminIdQuery, useGetAllUserActivateMessageQuery } =

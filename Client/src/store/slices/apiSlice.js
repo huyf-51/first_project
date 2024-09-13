@@ -5,6 +5,13 @@ export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: 'http://localhost:3001/',
         credentials: 'include',
+        prepareHeaders: (headers) => {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                headers.set('sessionId', sessionId);
+            }
+            return headers;
+        },
     }),
     endpoints: () => ({}),
     keepUnusedDataFor: 5,

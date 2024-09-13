@@ -50,7 +50,7 @@ class CartController {
         const productId = req.body.id;
         const count = req.body.count;
 
-        const result = await client.hIncrBy(
+        const result = await client.incrBy(
             `cart:${userId.toString()}`,
             `product:${productId}`,
             count

@@ -4,6 +4,7 @@ const refreshTokenRouter = require('./refreshToken');
 const orderRouter = require('./order');
 const cartRouter = require('./cart');
 const messageRouter = require('./message');
+const notificationRouter = require('./notification');
 
 function route(app) {
     app.use('/user', userRouter);
@@ -12,6 +13,7 @@ function route(app) {
     app.use('/order', orderRouter);
     app.use('/cart', cartRouter);
     app.use('/message', messageRouter);
+    app.use('/notification', notificationRouter);
 }
 
 module.exports = route;

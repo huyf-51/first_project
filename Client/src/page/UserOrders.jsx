@@ -10,12 +10,13 @@ import totalPrice from '../utils/orderUtils';
 import Button from 'react-bootstrap/esm/Button';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const UserOrders = () => {
+    const { state } = useLocation();
     const [deleteOrder] = useDeleteOrderMutation();
-    const [confirmed, setConfirmed] = useState(false);
+    const [confirmed, setConfirmed] = useState(() => (state ? state : false));
     const navigate = useNavigate();
     const { data, isLoading, isSuccess, refetch } = useGetAllUserOrderQuery();
     const handleDeleteOrder = async (id) => {

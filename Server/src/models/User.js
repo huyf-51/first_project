@@ -9,7 +9,10 @@ const User = new mongoose.Schema({
         type: String,
         required: true,
     },
-    refreshToken: String,
+    refreshToken: {
+        type: [String],
+        default: [],
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],

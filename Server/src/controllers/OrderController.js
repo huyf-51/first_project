@@ -5,7 +5,8 @@ const orderService = require('../services/OrderService');
 const AppError = require('../utils/AppError');
 const { client } = require('../config/redis');
 const Product = require('../models/Product');
-
+const Notification = require('../models/Notification');
+const mongooose = require('mongoose');
 class OrderController {
     async createOrder(req, res) {
         const userId = req.userId;
@@ -17,7 +18,7 @@ class OrderController {
                 quantity: item.quantity,
             });
         });
-        await Order.create({
+        const order = await Order.create({
             ...otherOrderDetail,
             userId,
             orderItems: simplifyOrderItems,
@@ -30,7 +31,7 @@ class OrderController {
             );
         });
         await client.del(`cart:${userId.toString()}`);
-        res.json('create order success');
+        res.json(order._id);
     }
 
     async getAllUserOrder(req, res) {
@@ -93,6 +94,23 @@ class OrderController {
         const order = await Order.findById({ _id: orderId });
         order.isConfirmed = true;
         await order.save();
+        const msg = { content: 'your order is confirmed', viewed: false };
+
+        await Notification.create({
+            ...msg,
+            userId: order.userId.toString(),
+        });
+        _io.to(order.userId.toString()).emit(
+            'notification',
+            msg,
+            (err, res) => {
+                if (err) {
+                    console.log('error>>>', err);
+                } else {
+                    console.log('res>>>', res);
+                }
+            }
+        );
         res.json('success');
     }
 

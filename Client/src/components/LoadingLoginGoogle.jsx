@@ -16,7 +16,8 @@ const LoadingLoginGoogle = () => {
         const query = new URLSearchParams(location.search);
         const data = JSON.parse(query.get('data'));
         const auth = JSON.parse(query.get('auth'));
-        const userData = { data, auth };
+        const sessionId = query.get('sessionId');
+        const userData = { data, auth, sessionId };
         dispatch(setCredentials(userData));
         try {
             const cart = await getCart().unwrap();

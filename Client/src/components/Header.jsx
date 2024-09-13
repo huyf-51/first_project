@@ -14,6 +14,7 @@ import Row from 'react-bootstrap/esm/Row';
 import Col from 'react-bootstrap/esm/Col';
 import UserChatButton from './button/UserChatButton';
 import AdminChatButton from './button/AdminChatButton';
+import NotifyButton from './button/NotifyButton';
 
 function Header() {
     const auth = JSON.parse(localStorage.getItem('auth'));
@@ -53,6 +54,7 @@ function Header() {
                             <CartButton />
                             {auth?.role === 'user' && <UserChatButton />}
                             {auth?.role === 'admin' && <AdminChatButton />}
+                            {localStorage.getItem('auth') && <NotifyButton />}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

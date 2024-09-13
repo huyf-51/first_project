@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { setCredentials, setLogout } from './userSlice';
+import {} from 'react-router-dom';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'http://localhost:3001/',
@@ -22,6 +23,7 @@ const baseQueryConfig = async (args, api, extraOptions) => {
             result = await baseQuery(args, api, extraOptions);
         } else {
             api.dispatch(setLogout());
+            window.location.href = '/user/login';
         }
     }
     return result;

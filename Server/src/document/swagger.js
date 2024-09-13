@@ -1,5 +1,5 @@
 const swaggerUi = require('swagger-ui-express');
-const fs = require('fs');
+const fs = require('fs-extra');
 const YAML = require('yaml');
 const path = require('path');
 
