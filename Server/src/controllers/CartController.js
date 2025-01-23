@@ -1,4 +1,4 @@
-const { client } = require('../config/redis');
+const client = require('../config/redis').getRedisInstance().getClient();
 const AppError = require('../utils/AppError');
 const Product = require('../models/Product');
 

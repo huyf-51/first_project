@@ -3,10 +3,10 @@ const { PAYPAL_CLIENT_ID } = process.env;
 const Order = require('../models/Order');
 const orderService = require('../services/OrderService');
 const AppError = require('../utils/AppError');
-const { client } = require('../config/redis');
+const client = require('../config/redis').getRedisInstance().getClient();
 const Product = require('../models/Product');
 const Notification = require('../models/Notification');
-const mongooose = require('mongoose');
+
 class OrderController {
     async createOrder(req, res) {
         const userId = req.userId;

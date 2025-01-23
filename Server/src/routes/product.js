@@ -12,7 +12,9 @@ router.post(
     catchAsync(productController.setImage),
     catchAsync(productController.create)
 );
+router.get('/search', catchAsync(productController.search));
 router.get('/list', catchAsync(productController.list));
+
 router.get('/get-product/:id', catchAsync(productController.getProductById));
 router.patch(
     '/update/:id',

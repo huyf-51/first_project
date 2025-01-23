@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import MyPaginate from '../assets/styles/pagination';
 import HomeProductItem from '../components/HomeProductItem';
-import { useGetProductsQuery } from '../store/slices/productApiSlice';
+import { useSearchOrGetProductsQuery } from '../store/slices/productApiSlice';
 import { useLocation } from 'react-router-dom';
 import ProductNotFound from '../components/ProductNotFound';
 import Spinner from 'react-bootstrap/Spinner';
@@ -12,8 +12,8 @@ import Image from 'react-bootstrap/Image';
 function Home() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
-    const keyword = query.get('keyword') ? query.get('keyword') : '';
-    const { data, isSuccess, isLoading } = useGetProductsQuery(keyword);
+    const keyword = query.get('keyword');
+    const { data, isSuccess, isLoading } = useSearchOrGetProductsQuery(keyword);
     const itemsPerPage = 16;
 
     const [itemOffset, setItemOffset] = useState(0);

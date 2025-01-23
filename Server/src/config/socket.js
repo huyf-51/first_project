@@ -2,7 +2,7 @@ const { Server } = require('socket.io');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/AppError');
-const { client } = require('../config/redis');
+const client = require('../config/redis').getRedisInstance().getClient();
 
 const socketConfig = async (server) => {
     const io = new Server(server, {

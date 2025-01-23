@@ -28,8 +28,9 @@ const productPrivateApi = privateApiSlice.injectEndpoints({
 
 const productApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getProducts: builder.query({
-            query: (keyword) => `product/list?keyword=${keyword}`,
+        searchOrGetProducts: builder.query({
+            query: (keyword) =>
+                keyword ? `product/search?keyword=${keyword}` : '/product/list',
         }),
         getProductById: builder.query({
             query: (id) => `/product/get-product/${id}`,
@@ -43,4 +44,5 @@ export const {
     useDeleteProductMutation,
 } = productPrivateApi;
 
-export const { useGetProductsQuery, useGetProductByIdQuery } = productApi;
+export const { useSearchOrGetProductsQuery, useGetProductByIdQuery } =
+    productApi;

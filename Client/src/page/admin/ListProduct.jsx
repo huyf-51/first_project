@@ -1,6 +1,6 @@
 import MyPaginate from '../../assets/styles/pagination';
 import ListProductItem from '../../components/ListProductItem';
-import { useGetProductsQuery } from '../../store/slices/productApiSlice';
+import { useSearchOrGetProductsQuery } from '../../store/slices/productApiSlice';
 import ProductNotFound from '../../components/ProductNotFound';
 import { useState } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
@@ -8,7 +8,8 @@ import Container from 'react-bootstrap/esm/Container';
 import '../../assets/styles/Checkout.css';
 
 function ListProduct() {
-    const { data, isLoading, isSuccess, refetch } = useGetProductsQuery('');
+    const { data, isLoading, isSuccess, refetch } =
+        useSearchOrGetProductsQuery();
     const itemsPerPage = 10;
 
     const [itemOffset, setItemOffset] = useState(0);

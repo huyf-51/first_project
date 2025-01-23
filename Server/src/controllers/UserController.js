@@ -8,7 +8,7 @@ const axios = require('axios');
 const _ = require('lodash');
 const Message = require('../models/Message');
 const { v4: uuidv4 } = require('uuid');
-const { client } = require('../config/redis');
+const client = require('../config/redis').getRedisInstance().getClient();
 const genToken = require('../utils/genToken');
 
 class UserController {

@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const AppError = require('../utils/AppError');
 const cloudinary = require('../config/cloudStoreFile');
+const CachingProductService = require('../cache/CachingProductService');
 
 class ProductController {
     async create(req, res) {
@@ -27,7 +28,7 @@ class ProductController {
         next();
     }
 
-    async list(req, res) {
+    async search(req, res) {
         const foundProduct = await Product.find({
             productName: {
                 $regex: req.query.keyword,
@@ -35,6 +36,11 @@ class ProductController {
             },
         });
         res.status(200).json(foundProduct);
+    }
+
+    async list(req, res) {
+        const allProduct = await CachingProductService.getAllProduct();
+        res.status(200).json(allProduct);
     }
 
     async getProductById(req, res, next) {
